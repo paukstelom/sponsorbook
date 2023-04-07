@@ -1,10 +1,12 @@
-from flask import Flask
-from domain.models import Organization
+from flask import Flask, render_template
+
+flask = Flask(__name__)
 
 
-app = Flask(__name__)
+@flask.route('/login')
+def hello_world():
+    return render_template('login_page.html')
 
-@app.get("/")
-def hello():
-    org = Organization("Edvin", "2023-05-01")
-    return str(org)
+
+if __name__ == '__main__f':
+    flask.run(debug=True)
