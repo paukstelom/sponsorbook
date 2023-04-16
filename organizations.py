@@ -7,6 +7,7 @@ from models import Organization
 
 organizations_api = Blueprint('organizations', __name__)
 db = MongoClient()['sponsorbook']
+# TODO: This shit is dumb af. If we are doing data hierarchy then it has to be organization_name, not organizations
 organizations = db['organizations']
 
 
