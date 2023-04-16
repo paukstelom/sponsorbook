@@ -26,7 +26,7 @@ def test_create_ticket_invalid():
 
 def test_delete_ticket():
     resp = requests.post("http://localhost:5000/ticket", headers={"Content-Type": "application/json"},
-                         json={"title": "hello", "description": "world"})
+                         json={"title": "Deleted ticket", "description": "this ticket was deleted"})
 
     ticket_id = resp.json().get('id')
     resp = requests.delete(f'http://localhost:5000/ticket/{ticket_id}', headers={"Content-Type": "application/json"})
