@@ -1,7 +1,7 @@
 from dataclasses import dataclass
-from datetime import datetime
 
 from bson import ObjectId
+from bson.errors import InvalidId
 from flask import Flask, request
 from pymongo import MongoClient
 
@@ -19,7 +19,7 @@ class Ticket:
 
 
 def gen_mongo_id():
-    return ObjectId.from_datetime(datetime.now())
+    return ObjectId()
 
 
 @app.route('/ticket', methods=['POST'])
@@ -39,12 +39,17 @@ def create_ticket():
 
 @app.route('/ticket/<id>', methods=['GET'])
 def get_ticket(id: str):
-    ticket = tickets.find_one({'_id': ObjectId(id)}, {"_id": False})
+    try:
+        mongo_id = ObjectId(id)
+    except InvalidId:
+        return "Id is not well-formed", 400
+
+    ticket = tickets.find_one({'_id': mongo_id}, {"_id": False})
 
     if ticket is None:
         return "Ticket not found", 404
 
-    return ticket, 200
+    return ticket.__dict__, 200
 
 
 @app.route('/tickets', methods=['GET'])
