@@ -9,6 +9,7 @@ app = Flask(__name__)
 db = MongoClient()['sponsorbook']
 
 tickets = db['tickets']
+archived_tickets = db['archived_tickets']
 
 
 @dataclass
@@ -55,6 +56,22 @@ def get_ticket(id: str):
 @app.route('/tickets', methods=['GET'])
 def list_tickets():
     return list(tickets.find({}, {"_id": False})), 200
+
+
+@app.route('/ticket/<id>', methods=['DELETE'])
+def delete_ticket(id):
+    try:
+        mongo_id = ObjectId(id)
+    except InvalidId:
+        return "Id is not well-formed", 400
+
+    ticket = tickets.find_one({'_id': mongo_id})
+    if ticket is None:
+        return 'Ticket not found', 400
+
+    tickets.delete_one({'_id': mongo_id})
+    archived_tickets.insert_one(ticket)
+    return 'Ticket deleted', 200
 
 
 # Running flask

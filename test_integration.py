@@ -1,6 +1,5 @@
-from pprint import pprint
-
 import requests as requests
+from bson import ObjectId
 
 
 def test_get_ticket_id_not_well_formed():
@@ -25,11 +24,27 @@ def test_create_ticket_invalid():
     assert resp.status_code == 400
 
 
-def test_get_ticket():
+def test_delete_ticket():
     resp = requests.post("http://localhost:5000/ticket", headers={"Content-Type": "application/json"},
                          json={"title": "hello", "description": "world"})
 
-    pprint(resp.text)
+    ticket_id = resp.json().get('id')
+    resp = requests.delete(f'http://localhost:5000/ticket/{ticket_id}', headers={"Content-Type": "application/json"})
+
+    assert resp.status_code == 200
+
+
+def test_delete_non_existent_ticket():
+    non_existent_id = str(ObjectId())
+    resp = requests.delete(f'http://localhost:5000/ticket/{non_existent_id}',
+                           headers={"Content-Type": "application/json"})
+
+    assert resp.status_code == 400
+
+
+def test_get_ticket():
+    resp = requests.post("http://localhost:5000/ticket", headers={"Content-Type": "application/json"},
+                         json={"title": "hello", "description": "world"})
 
     ticket_id = resp.json().get('id')
     resp = requests.get(f'http://localhost:5000/ticket/{ticket_id}', headers={"Content-Type": "application/json"})
@@ -41,7 +56,7 @@ def test_get_ticket():
 
 def test_get_tickets():
     requests.post("http://localhost:5000/ticket", headers={"Content-Type": "application/json"},
-                         json={"title": "hello", "description": "world"})
+                  json={"title": "hello", "description": "world"})
 
     resp = requests.get('http://localhost:5000/tickets', headers={"Content-Type": "application/json"})
 
