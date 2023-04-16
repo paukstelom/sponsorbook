@@ -1,6 +1,7 @@
 from dataclasses import dataclass
-from uuid import uuid4
+from datetime import datetime
 
+from bson import ObjectId
 from flask import Flask, request
 from pymongo import MongoClient
 
@@ -12,20 +13,23 @@ tickets = {}
 
 @dataclass
 class Ticket:
-    title: str
     id: str
+    title: str
     description: str
 
+def gen_mongo_id():
+    return ObjectId.from_datetime(datetime.now())
 
 @app.route('/ticket', methods=['POST'])
 def create_ticket():
     response = request.get_json()
     try:
-        ticket = Ticket(title=response['title'], id=str(uuid4()), description=response['description'])
+        ticket = Ticket(id=str(gen_mongo_id()), title=response['title'],
+                        description=response['description'])
     except:
         return 'Missing fields', 400
     # tickets[ticket.id] = ticket
-    result = db['tickets'].insert_one({'id': ticket.id,
+    result = db['tickets'].insert_one({'_id': ObjectId(ticket.id),
                                        'title': ticket.title,
                                        'description:': ticket.description})
     return ticket.__dict__, 201
@@ -35,7 +39,7 @@ def create_ticket():
 def return_ticket(id):
     try:
         # ticket = tickets[id]
-        ticket = db['tickets'].find_one({'id': id}, {"_id": False})
+        ticket = db['tickets'].find_one({'_id': ObjectId(id)}, {"_id": False})
     except:
         return 'Ticket not found', 404
     return ticket, 200
