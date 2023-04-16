@@ -7,4 +7,6 @@ from models import SubOrganization
 organizations_api = Blueprint('organizations', __name__)
 db = MongoClient()['sponsorbook']
 organizations = db['organizations']
+organization_name = ''
+sub_organizations = organizations[organization_name]
 
