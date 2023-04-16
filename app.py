@@ -49,7 +49,7 @@ def get_ticket(id: str):
     if ticket is None:
         return "Ticket not found", 404
 
-    return ticket.__dict__, 200
+    return ticket, 200
 
 
 @app.route('/tickets', methods=['GET'])
