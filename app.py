@@ -4,6 +4,8 @@ from flask import Flask, request
 from pymongo import MongoClient
 
 from use_cases.create_ticket import create_ticket
+from use_cases.get_ticket import get_ticket
+from use_cases.get_tickets import get_tickets
 
 app = Flask(__name__)
 db = MongoClient()['sponsorbook']
@@ -18,23 +20,13 @@ def create_ticket_endpoint():
 
 
 @app.route('/tickets/<id>', methods=['GET'])
-def get_ticket(id: str):
-    try:
-        mongo_id = ObjectId(id)
-    except InvalidId:
-        return "Id is not well-formed", 400
-
-    ticket = tickets.find_one({'_id': mongo_id}, {"_id": False})
-
-    if ticket is None:
-        return "Ticket not found", 404
-
-    return ticket, 200
+def get_ticket_endpoint(id: str):
+    return get_ticket(id, tickets)
 
 
 @app.route('/tickets', methods=['GET'])
-def list_tickets():
-    return list(tickets.find({}, {"_id": False})), 200
+def get_tickets_endpoint():
+    return get_tickets(tickets)
 
 
 @app.route('/tickets/<id>', methods=['DELETE'])
