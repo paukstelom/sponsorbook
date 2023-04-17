@@ -19,7 +19,7 @@ def gen_mongo_id():
 def create_organisation():
     response = request.get_json()
     try:
-        organization = Organization(id=str(gen_mongo_id()), name=response['name'], sub_organizations=list())
+        organization = Organization(id=str(gen_mongo_id()), name=response.name, sub_organizations=list())
     except KeyError:
         return 'Missing fields', 400
 
@@ -29,7 +29,7 @@ def create_organisation():
     return organization.__dict__, 201
 
 
-@organizations_api.route('/organizations/<id>', methods=['DELETE'])
+@organizations_api.route('/organizations/<id>', methods=['GET'])
 def delete_organization(id):
     try:
         mongo_id = ObjectId(id)

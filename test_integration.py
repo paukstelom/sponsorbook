@@ -2,26 +2,6 @@ import requests as requests
 from bson import ObjectId
 
 
-def test_create_organization():
-    resp = requests.post("http://localhost:5000/organizations", headers={"Content-Type": "application/json"},
-                         json={"name": "Test Organization"})
-
-    assert resp.status_code == 201
-    ticket_id = resp.json().get('id')
-    assert ticket_id is not None
-
-
-def test_delete_organizations():
-    resp = requests.post("http://localhost:5000/organizations", headers={"Content-Type": "application/json"},
-                         json={"name": "SponsorName"})
-
-    organization_id = resp.json().get('id')
-    resp = requests.delete(f'http://localhost:5000/organizations/{organization_id}',
-                           headers={"Content-Type": "application/json"})
-
-    assert resp.status_code == 200
-
-
 def test_get_ticket_id_not_well_formed():
     resp = requests.get(f'http://localhost:5000/ticket/abcd', headers={"Content-Type": "application/json"})
 

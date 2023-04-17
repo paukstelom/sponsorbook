@@ -1,18 +1,17 @@
+from dataclasses import dataclass
+
 from bson import ObjectId
-from flask import Flask
+from bson.errors import InvalidId
+from flask import Flask, request
 from pymongo import MongoClient
-from organizations import organizations_api
 
 app = Flask(__name__)
-app.register_blueprint(organizations_api)
-
 db = MongoClient()['sponsorbook']
-organizations = db['organizations']
 
+organizations = db['organizations']
 
 def gen_mongo_id():
     return ObjectId()
-
 
 #
 # @app.route('/ticket', methods=['POST'])
