@@ -4,7 +4,7 @@ from bson.errors import InvalidId
 from pymongo.collection import Collection
 
 
-def get_ticket(id: str, tickets: Collection) -> Tuple[str | any, int]:
+def get_ticket(id: str, tickets: Collection) -> Tuple[any, int]:
     try:
         mongo_id = ObjectId(id)
     except InvalidId:
