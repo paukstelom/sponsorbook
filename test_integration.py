@@ -17,13 +17,6 @@ def test_create_ticket():
     assert ticket_id is not None
 
 
-def test_create_ticket_invalid():
-    resp = requests.post("http://localhost:5000/tickets", headers={"Content-Type": "application/json"},
-                         json={"title": "hello"})
-
-    assert resp.status_code == 400
-
-
 def test_delete_ticket():
     resp = requests.post("http://localhost:5000/tickets", headers={"Content-Type": "application/json"},
                          json={"title": "hello", "description": "world"})

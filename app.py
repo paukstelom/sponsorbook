@@ -1,9 +1,9 @@
-from dataclasses import dataclass
-
 from bson import ObjectId
 from bson.errors import InvalidId
 from flask import Flask, request
 from pymongo import MongoClient
+
+from use_cases.create_ticket import create_ticket
 
 app = Flask(__name__)
 db = MongoClient()['sponsorbook']
@@ -12,30 +12,9 @@ tickets = db['tickets']
 archived_tickets = db['archived_tickets']
 
 
-@dataclass
-class Ticket:
-    id: str
-    title: str
-    description: str
-
-
-def gen_mongo_id():
-    return ObjectId()
-
-
 @app.route('/tickets', methods=['POST'])
-def create_ticket():
-    response = request.get_json()
-    try:
-        ticket = Ticket(id=str(gen_mongo_id()), title=response['title'],
-                        description=response['description'])
-    except KeyError:
-        return 'Missing fields', 400
-
-    tickets.insert_one({'_id': ObjectId(ticket.id),
-                        'title': ticket.title,
-                        'description:': ticket.description})
-    return ticket.__dict__, 201
+def create_ticket_endpoint():
+    return create_ticket(tickets, request.get_json())
 
 
 @app.route('/tickets/<id>', methods=['GET'])
