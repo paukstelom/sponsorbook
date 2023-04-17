@@ -23,7 +23,7 @@ def gen_mongo_id():
     return ObjectId()
 
 
-@app.route('/ticket', methods=['POST'])
+@app.route('/tickets', methods=['POST'])
 def create_ticket():
     response = request.get_json()
     try:
@@ -38,7 +38,7 @@ def create_ticket():
     return ticket.__dict__, 201
 
 
-@app.route('/ticket/<id>', methods=['GET'])
+@app.route('/tickets/<id>', methods=['GET'])
 def get_ticket(id: str):
     try:
         mongo_id = ObjectId(id)
@@ -58,7 +58,7 @@ def list_tickets():
     return list(tickets.find({}, {"_id": False})), 200
 
 
-@app.route('/ticket/<id>', methods=['DELETE'])
+@app.route('/tickets/<id>', methods=['DELETE'])
 def delete_ticket(id):
     try:
         mongo_id = ObjectId(id)
