@@ -1,6 +1,7 @@
 from bson import ObjectId
 from pymongo import MongoClient
 
+from models.ticket import CreateTicketModel
 from use_cases.create_ticket import create_ticket
 from use_cases.delete_ticket import delete_ticket
 from use_cases.get_ticket import get_ticket
@@ -13,6 +14,7 @@ archived_tickets = db['archived_tickets']
 
 
 def test_create_ticket():
+    model = CreateTicketModel()
     result, code = create_ticket(tickets, {"title": "hello", "description": "world"})
 
     assert code == 201

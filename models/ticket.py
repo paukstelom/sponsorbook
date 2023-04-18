@@ -1,17 +1,17 @@
 from dataclasses import dataclass
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+
+from models.py_object_id import PyObjectId
 
 
 @dataclass
-class Ticket:
-    id: str
-    title: str
-    description: str
+class Ticket(BaseModel):
+    id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
+    title: str = Field(...)
+    description: str = Field(...)
 
 
-class TicketModel(BaseModel):
-    id: str
-    title: str
-    description: str
-
+class CreateTicketModel(BaseModel):
+    title: str = Field(...)
+    description: str = Field(...)
