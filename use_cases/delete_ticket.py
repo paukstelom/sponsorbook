@@ -5,9 +5,9 @@ from bson.errors import InvalidId
 from pymongo.collection import Collection
 
 
-def delete_ticket(tickets: Collection, archived_tickets: Collection, id: str) -> Tuple[str | dict, int]:
+def delete_ticket(tickets: Collection, archived_tickets: Collection, ticket_id: str) -> Tuple[str | dict, int]:
     try:
-        mongo_id = ObjectId(id)
+        mongo_id = ObjectId(ticket_id)
     except InvalidId:
         return "Id is not well-formed", 400
 

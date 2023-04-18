@@ -16,7 +16,7 @@ def test_create_ticket():
     result, code = create_ticket(tickets, {"title": "hello", "description": "world"})
 
     assert code == 201
-    ticket_id = result.get('id')
+    ticket_id = result.id
     assert ticket_id is not None
 
 
@@ -44,7 +44,7 @@ def test_delete_non_existent_ticket():
 def test_delete_ticket():
     result, code = create_ticket(tickets, {"title": "hello", "description": "world"})
 
-    ticket_id = result.get('id')
+    ticket_id = result.id
     _, code = delete_ticket(tickets, archived_tickets, ticket_id)
 
     assert code == 200
