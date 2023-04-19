@@ -4,6 +4,7 @@ from models.py_object_id import PyObjectId
 from models.ticket import CreateTicketModel
 from use_cases.create_ticket import create_ticket
 from use_cases.delete_ticket import delete_ticket
+from use_cases.get_ticket import get_ticket
 from use_cases.get_tickets import get_tickets
 
 client = AsyncIOMotorClient()
@@ -44,3 +45,7 @@ async def test_delete_ticket():
     resp = await delete_ticket(tickets, archived_tickets, str(ticket_id))
 
     assert resp.title == "hello"
+
+    deleted_ticket = await get_ticket(str(ticket_id), tickets)
+
+    assert deleted_ticket is None
