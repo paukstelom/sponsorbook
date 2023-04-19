@@ -1,20 +1,14 @@
-from typing import Tuple
+from motor.motor_asyncio import AsyncIOMotorCollection
 
-from bson import ObjectId
-from bson.errors import InvalidId
-from pymongo.collection import Collection
+from models.ticket import Ticket
 
 
-def delete_ticket(tickets: Collection, archived_tickets: Collection, ticket_id: str) -> Tuple[str | dict, int]:
-    try:
-        mongo_id = ObjectId(ticket_id)
-    except InvalidId:
-        return "Id is not well-formed", 400
-
-    ticket = tickets.find_one({'_id': mongo_id})
+async def delete_ticket(tickets: AsyncIOMotorCollection, archived_tickets: AsyncIOMotorCollection,
+                        id: str) -> Ticket | None:
+    ticket = await tickets.find_one({'_id': id})
     if ticket is None:
-        return 'Ticket not found', 400
+        return None
 
-    tickets.delete_one({'_id': mongo_id})
-    archived_tickets.insert_one(ticket)
-    return 'Ticket deleted', 200
+    await tickets.delete_one({'_id': id})
+    await archived_tickets.insert_one(ticket)
+    return Ticket.parse_obj(ticket)

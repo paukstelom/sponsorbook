@@ -1,34 +1,40 @@
-from fastapi import FastAPI, Body
-from pymongo import MongoClient
+from typing import List, Optional
 
-from models.ticket import CreateTicketModel
+from fastapi import FastAPI, Body, HTTPException
+from motor.motor_asyncio import AsyncIOMotorClient
+
+from models.ticket import CreateTicketModel, Ticket
 from use_cases.create_ticket import create_ticket
 from use_cases.delete_ticket import delete_ticket
 from use_cases.get_ticket import get_ticket
 from use_cases.get_tickets import get_tickets
 
 app = FastAPI()
-db = MongoClient()['sponsorbook']
+client = AsyncIOMotorClient()
+db = client['sponsorbook']
 
 tickets = db['tickets']
 archived_tickets = db['archived_tickets']
 
 
-@app.post('/tickets')
-def create_ticket_endpoint(body: CreateTicketModel = Body(...)):
-    return create_ticket(tickets, body)
+@app.post('/tickets', response_description="Create a ticket", response_model=Ticket)
+async def create_ticket_endpoint(body: CreateTicketModel = Body(...)):
+    return await create_ticket(tickets, body)
 
 
-@app.get('/tickets/{ticket_id}')
-def get_ticket_endpoint(ticket_id: str):
-    return get_ticket(ticket_id, tickets)
+@app.get('/tickets/{ticket_id}', response_description="Get a ticket", response_model=Optional[Ticket])
+async def get_ticket_endpoint(ticket_id: str):
+    ticket = await get_ticket(ticket_id, tickets)
+    if ticket is None:
+        raise HTTPException(status_code=404, detail="Ticket not found")
+    return ticket
 
 
-@app.get('/tickets')
-def get_tickets_endpoint():
-    return get_tickets(tickets)
+@app.get('/tickets', response_description="Get all tickets", response_model=List[Ticket])
+async def get_tickets_endpoint():
+    return [item async for item in get_tickets(tickets)]
 
 
-@app.delete('/tickets/{id}')
-def delete_ticket_endpoint(ticket_id):
-    return delete_ticket(tickets, archived_tickets, ticket_id)
+@app.delete('/tickets/{id}', response_description="Archive a ticket", response_model=Ticket)
+async def delete_ticket_endpoint(id: str):
+    return await delete_ticket(tickets, archived_tickets, id)
