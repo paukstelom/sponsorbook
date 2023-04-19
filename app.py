@@ -16,7 +16,6 @@ db = client['sponsorbook']
 tickets = db['tickets']
 archived_tickets = db['archived_tickets']
 
-
 @app.post('/tickets', response_description="Create a ticket", response_model=Ticket)
 async def create_ticket_endpoint(body: CreateTicketModel = Body(...)):
     return await create_ticket(tickets, body)

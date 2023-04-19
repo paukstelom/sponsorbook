@@ -1,3 +1,4 @@
+
 from typing import AsyncGenerator
 
 from motor.motor_asyncio import AsyncIOMotorCollection

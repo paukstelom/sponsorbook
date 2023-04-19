@@ -2,6 +2,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 
 from models.py_object_id import PyObjectId
 from models.ticket import CreateTicketModel
+
 from use_cases.create_ticket import create_ticket
 from use_cases.delete_ticket import delete_ticket
 from use_cases.get_ticket import get_ticket
@@ -10,9 +11,9 @@ from use_cases.get_tickets import get_tickets
 client = AsyncIOMotorClient()
 db = client['sponsorbook']
 
+
 tickets = db['tickets']
 archived_tickets = db['archived_tickets']
-
 
 async def test_create_ticket():
     model = CreateTicketModel(title="hello", description="world")
