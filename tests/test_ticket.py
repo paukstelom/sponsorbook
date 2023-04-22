@@ -4,7 +4,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from models.errors import SponsorNotFound, TicketNotFound
 from models.py_object_id import PyObjectId
 from models.sponsor_models import CreateSponsorModel
-from models.ticket import CreateTicketModel
+from models.ticket_models import CreateTicketModel
 from use_cases.sponsor_cases.create_sponsor import create_sponsor
 from use_cases.ticket_cases.create_ticket import create_ticket
 from use_cases.ticket_cases.delete_ticket import delete_ticket

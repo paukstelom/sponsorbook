@@ -3,7 +3,7 @@ from motor.motor_asyncio import AsyncIOMotorCollection
 
 from models.errors import SponsorNotFound
 from models.py_object_id import PyObjectId
-from models.ticket import CreateTicketModel, Ticket
+from models.ticket_models import CreateTicketModel, Ticket
 
 
 async def create_ticket(

@@ -2,7 +2,7 @@ from typing import Optional
 
 from motor.motor_asyncio import AsyncIOMotorCollection
 
-from models.ticket import Ticket
+from models.ticket_models import Ticket
 
 
 async def get_ticket(id: str, tickets: AsyncIOMotorCollection) -> Optional[Ticket]:
