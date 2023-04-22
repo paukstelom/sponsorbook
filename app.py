@@ -1,5 +1,6 @@
 from typing import List, Optional
 
+from bson.errors import InvalidId
 from fastapi import FastAPI, Body, HTTPException
 from motor.motor_asyncio import AsyncIOMotorClient
 
@@ -16,9 +17,14 @@ db = client['sponsorbook']
 tickets = db['tickets']
 archived_tickets = db['archived_tickets']
 
+
 @app.post('/tickets', response_description="Create a ticket", response_model=Ticket)
 async def create_ticket_endpoint(body: CreateTicketModel = Body(...)):
-    return await create_ticket(tickets, body)
+    try:
+        ticket = await create_ticket(tickets, body)
+    except InvalidId:
+        raise HTTPException(status_code=400, detail='Invalid sponsor id')
+    return ticket
 
 
 @app.get('/tickets/{ticket_id}', response_description="Get a ticket", response_model=Optional[Ticket])
