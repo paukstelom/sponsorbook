@@ -42,7 +42,7 @@ async def test_get_tickets():
 
 async def test_delete_non_existent_ticket():
     non_existent_id = PyObjectId()
-    res = await delete_ticket(tickets, archived_tickets, str(non_existent_id))
+    res = await delete_ticket(tickets, str(non_existent_id))
 
     assert res is None
 
@@ -52,7 +52,7 @@ async def test_delete_ticket():
     result = await create_ticket(tickets, model)
 
     ticket_id = result.id
-    resp = await delete_ticket(tickets, archived_tickets, str(ticket_id))
+    resp = await delete_ticket(tickets, str(ticket_id))
 
     assert resp.title == "hello"
 
