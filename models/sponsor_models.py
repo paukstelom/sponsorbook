@@ -4,11 +4,10 @@ from pydantic import BaseModel, Field
 from models.py_object_id import PyObjectId
 
 
-class Ticket(BaseModel):
+class Sponsor(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     title: str = Field()
     description: str = Field()
-    sponsor_id: PyObjectId = Field()
 
     class Config:
         allow_population_by_field_name = True
@@ -23,10 +22,9 @@ class Ticket(BaseModel):
         }
 
 
-class CreateTicketModel(BaseModel):
+class CreateSponsorModel(BaseModel):
     title: str = Field()
     description: str = Field()
-    sponsor_id: str = Field()
 
     class Config:
         arbitrary_types_allowed = True

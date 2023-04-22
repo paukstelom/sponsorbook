@@ -1,56 +1,61 @@
-from bson import ObjectId
-from pymongo import MongoClient
+import pytest
+from bson.errors import InvalidId
+from motor.motor_asyncio import AsyncIOMotorClient
 
+from models.py_object_id import PyObjectId
+from models.ticket import CreateTicketModel
 from use_cases.create_ticket import create_ticket
 from use_cases.delete_ticket import delete_ticket
 from use_cases.get_ticket import get_ticket
 from use_cases.get_tickets import get_tickets
 
-db = MongoClient()['sponsorbook']
+client = AsyncIOMotorClient()
+db = client['sponsorbook']
 
 tickets = db['tickets']
 archived_tickets = db['archived_tickets']
 
 
-def test_create_ticket():
-    result, code = create_ticket(tickets, {"title": "hello", "description": "world"})
+async def test_create_ticket():
+    model = CreateTicketModel(title="hello", description="world", sponsor_id='123456789123123456789123')
+    result = await create_ticket(tickets, model)
 
-    assert code == 201
-    ticket_id = result.get('id')
+    ticket_id = result.id
     assert ticket_id is not None
 
 
-def test_create_ticket_invalid():
-    _, code = create_ticket(tickets, {"title": "hello"})
-
-    assert code == 400
 
 
-def test_get_tickets():
-    create_ticket(tickets, {"title": "hello", "description": "world"})
-    tickets_list, code = get_tickets(tickets)
+async def test_create_ticket_invalid_sponsor_id():
+    models = CreateTicketModel(title="hello", description="world", sponsor_id='invalid id')
+    with pytest.raises(InvalidId):
+        result = await create_ticket(tickets, models)
 
-    assert code == 200
+
+async def test_get_tickets():
+    model = CreateTicketModel(title="hello", description="world", sponsor_id='123456789123123456789123')
+    await create_ticket(tickets, model)
+    tickets_list = [item async for item in get_tickets(tickets)]
+
     assert len(tickets_list) > 0
 
 
-def test_delete_non_existent_ticket():
-    non_existent_id = str(ObjectId())
-    _, code = delete_ticket(tickets, archived_tickets, non_existent_id)
+async def test_delete_non_existent_ticket():
+    non_existent_id = PyObjectId()
+    res = await delete_ticket(tickets, archived_tickets, str(non_existent_id))
 
-    assert code == 400
-
-
-def test_delete_ticket():
-    result, code = create_ticket(tickets, {"title": "hello", "description": "world"})
-
-    ticket_id = result.get('id')
-    _, code = delete_ticket(tickets, archived_tickets, ticket_id)
-
-    assert code == 200
+    assert res is None
 
 
-def test_get_ticket_id_not_well_formed():
-    _, code = get_ticket("abcd", tickets)
+async def test_delete_ticket():
+    model = CreateTicketModel(title="hello", description="world", sponsor_id='123456789123123456789123')
+    result = await create_ticket(tickets, model)
 
-    assert code == 400
+    ticket_id = result.id
+    resp = await delete_ticket(tickets, archived_tickets, str(ticket_id))
+
+    assert resp.title == "hello"
+
+    deleted_ticket = await get_ticket(str(ticket_id), tickets)
+
+    assert deleted_ticket is None

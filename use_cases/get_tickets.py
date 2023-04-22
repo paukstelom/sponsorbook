@@ -1,7 +1,11 @@
-from typing import Tuple
 
-from pymongo.collection import Collection
+from typing import AsyncGenerator
+
+from motor.motor_asyncio import AsyncIOMotorCollection
+
+from models.ticket import Ticket
 
 
-def get_tickets(tickets: Collection) -> Tuple[list, int]:
-    return list(tickets.find({}, {"_id": False})), 200
+async def get_tickets(tickets: AsyncIOMotorCollection, page_size: int = 100) -> AsyncGenerator[Ticket, None]:
+    for ticket in await tickets.find().to_list(page_size):
+        yield Ticket.parse_obj(ticket)

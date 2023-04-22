@@ -1,38 +1,45 @@
-from flask import Flask, request
-from pymongo import MongoClient
+from typing import List, Optional
 
+from bson.errors import InvalidId
+from fastapi import FastAPI, Body, HTTPException
+from motor.motor_asyncio import AsyncIOMotorClient
+
+from models.ticket import CreateTicketModel, Ticket
 from use_cases.create_ticket import create_ticket
 from use_cases.delete_ticket import delete_ticket
 from use_cases.get_ticket import get_ticket
 from use_cases.get_tickets import get_tickets
 
-app = Flask(__name__)
-db = MongoClient()['sponsorbook']
+app = FastAPI()
+client = AsyncIOMotorClient()
+db = client['sponsorbook']
 
 tickets = db['tickets']
 archived_tickets = db['archived_tickets']
 
 
-@app.route('/tickets', methods=['POST'])
-def create_ticket_endpoint():
-    return create_ticket(tickets, request.get_json())
+@app.post('/tickets', response_description="Create a ticket", response_model=Ticket)
+async def create_ticket_endpoint(body: CreateTicketModel = Body(...)):
+    try:
+        ticket = await create_ticket(tickets, body)
+    except InvalidId:
+        raise HTTPException(status_code=400, detail='Invalid sponsor id')
+    return ticket
 
 
-@app.route('/tickets/<id>', methods=['GET'])
-def get_ticket_endpoint(id: str):
-    return get_ticket(id, tickets)
+@app.get('/tickets/{ticket_id}', response_description="Get a ticket", response_model=Optional[Ticket])
+async def get_ticket_endpoint(ticket_id: str):
+    ticket = await get_ticket(ticket_id, tickets)
+    if ticket is None:
+        raise HTTPException(status_code=404, detail="Ticket not found")
+    return ticket
 
 
-@app.route('/tickets', methods=['GET'])
-def get_tickets_endpoint():
-    return get_tickets(tickets)
+@app.get('/tickets', response_description="Get all tickets", response_model=List[Ticket])
+async def get_tickets_endpoint():
+    return [item async for item in get_tickets(tickets)]
 
 
-@app.route('/tickets/<id>', methods=['DELETE'])
-def delete_ticket_endpoint(id):
-    return delete_ticket(tickets, archived_tickets, id)
-
-
-# Running flask
-if __name__ == '__main__':
-    app.run(debug=True)
+@app.delete('/tickets/{id}', response_description="Archive a ticket", response_model=Ticket)
+async def delete_ticket_endpoint(id: str):
+    return await delete_ticket(tickets, archived_tickets, id)
