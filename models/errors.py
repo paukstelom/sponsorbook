@@ -4,3 +4,7 @@ class SponsorNotFound(BaseException):
 
 class TicketNotFound(BaseException):
     pass
+
+
+class EventNotFound(BaseException):
+    pass

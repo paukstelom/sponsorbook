@@ -23,7 +23,7 @@ class Event(BaseModel):
         }
 
 
-class CreateTicketModel(BaseModel):
+class CreateEventModel(BaseModel):
     title: str = Field()
     description: str = Field()
 
