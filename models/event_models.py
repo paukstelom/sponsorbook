@@ -4,11 +4,11 @@ from pydantic import BaseModel, Field
 from models.py_object_id import PyObjectId
 
 
-class Ticket(BaseModel):
+class Event(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     title: str = Field()
     description: str = Field()
-    sponsor_id: PyObjectId = Field()
+    is_archived: bool = Field(default=False)
 
     class Config:
         allow_population_by_field_name = True
@@ -26,7 +26,6 @@ class Ticket(BaseModel):
 class CreateTicketModel(BaseModel):
     title: str = Field()
     description: str = Field()
-    sponsor_id: str = Field()
 
     class Config:
         arbitrary_types_allowed = True
