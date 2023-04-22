@@ -1,5 +1,7 @@
+import pytest
 from motor.motor_asyncio import AsyncIOMotorClient
 
+from models.errors import SponsorNotFound
 from models.py_object_id import PyObjectId
 from models.sponsor_models import CreateSponsorModel
 from models.ticket import CreateTicketModel
@@ -36,9 +38,9 @@ async def test_get_sponsors():
 
 async def test_delete_non_existent_sponsor():
     non_existent_id = PyObjectId()
-    res = await delete_sponsor(sponsors, str(non_existent_id))
+    with pytest.raises(SponsorNotFound):
+        await delete_sponsor(sponsors, str(non_existent_id))
 
-    assert res is None
 
 
 async def test_delete_sponsor():
@@ -48,8 +50,8 @@ async def test_delete_sponsor():
     sponsor_id = result.id
     resp = await delete_sponsor(sponsors, str(sponsor_id))
 
-    assert resp.title == "hello"
+    assert resp is None
 
     deleted_sponsor = await get_sponsor(str(sponsor_id), sponsors)
 
-    assert deleted_sponsor is None
+    assert deleted_sponsor.is_archived
