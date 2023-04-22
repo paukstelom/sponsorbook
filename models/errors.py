@@ -1,0 +1,2 @@
+class SponsorNotFound(BaseException):
+    pass

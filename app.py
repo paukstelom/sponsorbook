@@ -4,6 +4,7 @@ from bson.errors import InvalidId
 from fastapi import FastAPI, Body, HTTPException
 from motor.motor_asyncio import AsyncIOMotorClient
 
+from models.errors import SponsorNotFound
 from models.ticket import CreateTicketModel, Ticket
 from use_cases.ticket_cases.create_ticket import create_ticket
 from use_cases.ticket_cases.delete_ticket import delete_ticket
@@ -15,14 +16,15 @@ client = AsyncIOMotorClient()
 db = client['sponsorbook']
 
 tickets = db['tickets']
+sponsors = db['sponsors']
 
 
 @app.post('/tickets', response_description="Create a ticket", response_model=Ticket)
 async def create_ticket_endpoint(body: CreateTicketModel = Body(...)):
     try:
-        ticket = await create_ticket(tickets, body)
-    except InvalidId:
-        raise HTTPException(status_code=400, detail='Invalid sponsor id')
+        ticket = await create_ticket(tickets, sponsors, body)
+    except SponsorNotFound:
+        raise HTTPException(status_code=400, detail='Sponsor not found')
     return ticket
 
 
