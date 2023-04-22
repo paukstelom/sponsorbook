@@ -8,6 +8,7 @@ class Ticket(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     title: str = Field()
     description: str = Field()
+    is_archived: bool = Field(default=False)
     sponsor_id: PyObjectId = Field()
 
     class Config:

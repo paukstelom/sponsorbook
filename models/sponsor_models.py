@@ -8,6 +8,7 @@ class Sponsor(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     title: str = Field()
     description: str = Field()
+    is_archived: bool = Field(default=False)
 
     class Config:
         allow_population_by_field_name = True
