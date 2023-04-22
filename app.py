@@ -5,10 +5,10 @@ from fastapi import FastAPI, Body, HTTPException
 from motor.motor_asyncio import AsyncIOMotorClient
 
 from models.ticket import CreateTicketModel, Ticket
-from use_cases.create_ticket import create_ticket
-from use_cases.delete_ticket import delete_ticket
-from use_cases.get_ticket import get_ticket
-from use_cases.get_tickets import get_tickets
+from use_cases.ticket_cases.create_ticket import create_ticket
+from use_cases.ticket_cases.delete_ticket import delete_ticket
+from use_cases.ticket_cases.get_ticket import get_ticket
+from use_cases.ticket_cases.get_tickets import get_tickets
 
 app = FastAPI()
 client = AsyncIOMotorClient()

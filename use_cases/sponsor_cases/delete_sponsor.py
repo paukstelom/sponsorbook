@@ -1,17 +1,14 @@
 from motor.motor_asyncio import AsyncIOMotorCollection
 
-from models.ticket import Ticket
+from models.sponsor_models import Sponsor
 
 
 async def delete_sponsor(
         sponsors: AsyncIOMotorCollection,
-        archived_tickets: AsyncIOMotorCollection,
-        id: str) -> Ticket | None:
-
-    ticket = await tickets.find_one({'_id': id})
+        id: str) -> Sponsor | None:
+    ticket = await sponsors.find_one({'_id': id})
     if ticket is None:
         return None
 
-    await tickets.delete_one({'_id': id})
-    await archived_tickets.insert_one(ticket)
-    return Ticket.parse_obj(ticket)
+    await sponsors.delete_one({'_id': id})
+    return Sponsor.parse_obj(ticket)
