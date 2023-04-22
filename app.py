@@ -15,7 +15,6 @@ client = AsyncIOMotorClient()
 db = client['sponsorbook']
 
 tickets = db['tickets']
-archived_tickets = db['archived_tickets']
 
 
 @app.post('/tickets', response_description="Create a ticket", response_model=Ticket)
@@ -42,4 +41,4 @@ async def get_tickets_endpoint():
 
 @app.delete('/tickets/{id}', response_description="Archive a ticket", response_model=Ticket)
 async def delete_ticket_endpoint(id: str):
-    return await delete_ticket(tickets, archived_tickets, id)
+    return await delete_ticket(tickets, id)
