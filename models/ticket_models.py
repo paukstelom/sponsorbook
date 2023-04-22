@@ -10,6 +10,7 @@ class Ticket(BaseModel):
     description: str = Field()
     is_archived: bool = Field(default=False)
     sponsor_id: PyObjectId = Field()
+    event_id: PyObjectId = Field()
 
     class Config:
         allow_population_by_field_name = True
@@ -28,6 +29,7 @@ class CreateTicketModel(BaseModel):
     title: str = Field()
     description: str = Field()
     sponsor_id: str = Field()
+    event_id: str = Field()
 
     class Config:
         arbitrary_types_allowed = True
