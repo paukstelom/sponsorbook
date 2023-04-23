@@ -13,5 +13,10 @@ class EventNotFound(BaseException):
 class ConversationNotFound(BaseException):
     pass
 
+
 class InvalidCredentials(BaseException):
+    pass
+
+
+class OrganizationNotFound(BaseException):
     pass
