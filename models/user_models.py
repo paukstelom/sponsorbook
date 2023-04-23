@@ -1,19 +1,18 @@
+from datetime import datetime
+
 from bson import ObjectId
 from pydantic import BaseModel, Field
-from datetime import datetime
+
 from models.py_object_id import PyObjectId
 
 
-class Ticket(BaseModel):
+class User(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
-    title: str = Field()
-    description: str = Field()
-    is_archived: bool = Field(default=False)
-    sponsor_id: PyObjectId = Field()
-    event_id: PyObjectId = Field()
+    name: str = Field()
+    surname: str = Field()
+    email: str = Field()
+    password: str = Field()
     creation_date: datetime = Field(default_factory=datetime.now)
-    # last_time_edited: str = Field()
-    # editor_id: PyObjectId = Field()
 
     class Config:
         allow_population_by_field_name = True
@@ -28,11 +27,10 @@ class Ticket(BaseModel):
         }
 
 
-class CreateTicketModel(BaseModel):
-    title: str = Field()
-    description: str = Field()
-    sponsor_id: str = Field()
-    event_id: str = Field()
+class CreateUserModel(BaseModel):
+    name: str = Field()
+    surname: str = Field()
+    email: str = Field()
 
     class Config:
         arbitrary_types_allowed = True

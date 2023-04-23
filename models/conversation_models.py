@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from bson import ObjectId
 from pydantic import BaseModel, Field
 
@@ -10,6 +12,7 @@ class Conversation(BaseModel):
     description: str = Field()
     is_archived: bool = Field(default=False)
     ticket_id: PyObjectId = Field()
+    creation_date: datetime = Field(default_factory=datetime.now)
 
     class Config:
         allow_population_by_field_name = True
