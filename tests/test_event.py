@@ -1,17 +1,13 @@
 import pytest
 from motor.motor_asyncio import AsyncIOMotorClient
-
-from models.errors import SponsorNotFound, EventNotFound
+from models.errors import EventNotFound
 from models.event_models import CreateEventModel
 from models.py_object_id import PyObjectId
-from models.sponsor_models import CreateSponsorModel
 from use_cases.event_cases.create_event import create_event
 from use_cases.event_cases.delete_event import delete_event
 from use_cases.event_cases.get_events import get_events
-from use_cases.sponsor_cases.create_sponsor import create_sponsor
 from use_cases.sponsor_cases.delete_sponsor import delete_sponsor
 from use_cases.sponsor_cases.get_sponsor import get_sponsor
-from use_cases.sponsor_cases.get_sponsors import get_sponsors
 
 client = AsyncIOMotorClient()
 db = client['sponsorbook']

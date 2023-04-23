@@ -1,10 +1,7 @@
 from typing import List, Optional
-
-from bson.errors import InvalidId
 from fastapi import FastAPI, Body, HTTPException
 from motor.motor_asyncio import AsyncIOMotorClient
-
-from models.errors import SponsorNotFound
+from models.errors import SponsorNotFound, EventNotFound
 from models.ticket_models import CreateTicketModel, Ticket
 from use_cases.ticket_cases.create_ticket import create_ticket
 from use_cases.ticket_cases.delete_ticket import delete_ticket
@@ -17,14 +14,17 @@ db = client['sponsorbook']
 
 tickets = db['tickets']
 sponsors = db['sponsors']
+events = db['events']
 
 
 @app.post('/tickets', response_description="Create a ticket", response_model=Ticket)
 async def create_ticket_endpoint(body: CreateTicketModel = Body(...)):
     try:
-        ticket = await create_ticket(tickets, sponsors, body)
+        ticket = await create_ticket(tickets, sponsors, events, body)
     except SponsorNotFound:
         raise HTTPException(status_code=400, detail='Sponsor not found')
+    except EventNotFound:
+        raise HTTPException(status_code=400, detail='Event not found')
     return ticket
 
 
@@ -42,5 +42,5 @@ async def get_tickets_endpoint():
 
 
 @app.delete('/tickets/{id}', response_description="Archive a ticket", response_model=Ticket)
-async def delete_ticket_endpoint(id: str):
-    return await delete_ticket(tickets, id)
+async def delete_ticket_endpoint(ticket_id: str):
+    return await delete_ticket(tickets, ticket_id)

@@ -8,3 +8,7 @@ class TicketNotFound(BaseException):
 
 class EventNotFound(BaseException):
     pass
+
+
+class ConversationNotFound(BaseException):
+    pass

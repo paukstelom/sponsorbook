@@ -9,3 +9,4 @@ async def create_event(events: AsyncIOMotorCollection, data: CreateEventModel) -
 
     await events.insert_one(jsonable_encoder(event))
     return event
+
