@@ -43,7 +43,7 @@ async def test_create_sub_organization_non_existent_organization():
                                        description="world",
                                        organization_id='123456789123123456789123')
 
-    with pytest.raises(OrganizationNotFound):
+    with pytest.raises(SubOrganizationNotFound):
         await create_sub_organization(sub_organizations, organizations, model)
 
 
