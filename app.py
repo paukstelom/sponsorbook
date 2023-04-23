@@ -1,20 +1,48 @@
 from typing import List, Optional
+
 from fastapi import FastAPI, Body, HTTPException
 from motor.motor_asyncio import AsyncIOMotorClient
-from models.errors import SponsorNotFound, EventNotFound
+
+from models.authentication_models import Credentials
+from models.errors import SponsorNotFound, EventNotFound, InvalidCredentials
 from models.ticket_models import CreateTicketModel, Ticket
+from use_cases.authentication.login import authenticate_user
 from use_cases.ticket_cases.create_ticket import create_ticket
 from use_cases.ticket_cases.delete_ticket import delete_ticket
 from use_cases.ticket_cases.get_ticket import get_ticket
 from use_cases.ticket_cases.get_tickets import get_tickets
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+origins = [
+    "http://localhost:3000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 client = AsyncIOMotorClient()
 db = client['sponsorbook']
 
 tickets = db['tickets']
 sponsors = db['sponsors']
 events = db['events']
+users = db['users']
+
+
+@app.post('/login', response_description='Login', response_model=str)
+async def login_endpoint(body: Credentials = Body(...)):
+    try:
+        token = authenticate_user(body)
+        return token
+    except InvalidCredentials:
+        raise HTTPException(status_code=403, detail='Bad credentials')
 
 
 @app.post('/tickets', response_description="Create a ticket", response_model=Ticket)
