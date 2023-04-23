@@ -20,3 +20,7 @@ class InvalidCredentials(BaseException):
 
 class OrganizationNotFound(BaseException):
     pass
+
+
+class SubOrganizationNotFound(BaseException):
+    pass
