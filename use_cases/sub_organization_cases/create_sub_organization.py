@@ -1,7 +1,7 @@
 from fastapi.encoders import jsonable_encoder
 from motor.motor_asyncio import AsyncIOMotorCollection
 
-from models.errors import OrganizationNotFound
+from models.errors import OrganizationNotFound, SubOrganizationNotFound
 from models.py_object_id import PyObjectId
 from models.sub_organization_models import CreateSubOrganizationModel, SubOrganization
 
@@ -12,7 +12,7 @@ async def create_sub_organization(
         data: CreateSubOrganizationModel) -> SubOrganization | None:
     res = await organizations.find_one({'_id': data.organization_id})
     if res is None:
-        raise OrganizationNotFound
+        raise SubOrganizationNotFound
 
     sub_organization = SubOrganization(title=data.title,
                                        description=data.description,
