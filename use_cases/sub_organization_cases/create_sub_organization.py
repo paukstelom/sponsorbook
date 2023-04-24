@@ -12,7 +12,7 @@ async def create_sub_organization(
         data: CreateSubOrganizationModel) -> SubOrganization | None:
     res = await organizations.find_one({'_id': data.organization_id})
     if res is None:
-        raise SubOrganizationNotFound
+        raise OrganizationNotFound
 
     sub_organization = SubOrganization(title=data.title,
                                        description=data.description,
