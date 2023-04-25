@@ -14,21 +14,13 @@ from use_cases.user_cases.get_all_users import get_user
 from use_cases.user_cases.get_conversations import get_all_users
 
 client = AsyncIOMotorClient()
-db = client['sponsorbook']
-tickets = db['tickets']
-sponsors = db['sponsors']
-events = db['events']
-conversations = db['conversations']
-sub_organizations = db['sub_organizations']
-organizations = db['organizations']
-users = db['users']
+sponsorbook_database = client['sponsorbook']
 
 
 async def test_create_user():
-    organization = await create_organization(organizations, CreateOrganizationModel(title='org title',
-                                                                                    description='org desc'))
-    sub_organization = await create_sub_organization(sub_organizations,
-                                                     organizations,
+    organization = await create_organization(sponsorbook_database, CreateOrganizationModel(title='org title',
+                                                                                           description='org desc'))
+    sub_organization = await create_sub_organization(sponsorbook_database,
                                                      CreateSubOrganizationModel(title='suborg title',
                                                                                 description='suborg desc',
                                                                                 organization_id=str(organization.id)))
@@ -37,7 +29,7 @@ async def test_create_user():
                             surname="world",
                             email='123@abc.com',
                             sub_organization_id=str(sub_organization.id))
-    result = await create_user(users, sub_organizations, model)
+    result = await create_user(sponsorbook_database, model)
 
     user_id = result.id
     assert user_id is not None
@@ -49,14 +41,13 @@ async def test_create_user_non_existent_sub_organization():
                             email="world",
                             sub_organization_id='123456789123123456789123')
     with pytest.raises(SubOrganizationNotFound):
-        await create_user(users, sub_organizations, model)
+        await create_user(sponsorbook_database, model)
 
 
 async def test_get_all_users():
-    organization = await create_organization(organizations, CreateOrganizationModel(title='org title',
-                                                                                    description='org desc'))
-    sub_organization = await create_sub_organization(sub_organizations,
-                                                     organizations,
+    organization = await create_organization(sponsorbook_database, CreateOrganizationModel(title='org title',
+                                                                                           description='org desc'))
+    sub_organization = await create_sub_organization(sponsorbook_database,
                                                      CreateSubOrganizationModel(title='suborg title',
                                                                                 description='suborg desc',
                                                                                 organization_id=str(organization.id)))
@@ -65,8 +56,8 @@ async def test_get_all_users():
                             surname="world",
                             email='123@abc.com',
                             sub_organization_id=str(sub_organization.id))
-    await create_user(users, sub_organizations, model)
-    users_list = [item async for item in get_all_users(users)]
+    await create_user(sponsorbook_database, model)
+    users_list = [item async for item in get_all_users(sponsorbook_database)]
 
     assert len(users_list) > 0
 
@@ -74,14 +65,13 @@ async def test_get_all_users():
 async def test_delete_non_existent_user():
     non_existent_id = PyObjectId()
     with pytest.raises(UserNotFound):
-        await delete_user(users, str(non_existent_id))
+        await delete_user(sponsorbook_database, str(non_existent_id))
 
 
 async def test_delete_user():
-    organization = await create_organization(organizations, CreateOrganizationModel(title='org title',
-                                                                                    description='org desc'))
-    sub_organization = await create_sub_organization(sub_organizations,
-                                                     organizations,
+    organization = await create_organization(sponsorbook_database, CreateOrganizationModel(title='org title',
+                                                                                           description='org desc'))
+    sub_organization = await create_sub_organization(sponsorbook_database,
                                                      CreateSubOrganizationModel(title='suborg title',
                                                                                 description='suborg desc',
                                                                                 organization_id=str(organization.id)))
@@ -90,13 +80,13 @@ async def test_delete_user():
                             surname="world",
                             email='123@abc.com',
                             sub_organization_id=str(sub_organization.id))
-    result = await create_user(users, sub_organizations, model)
+    result = await create_user(sponsorbook_database, model)
 
     user_id = result.id
-    resp = await delete_user(users, str(user_id))
+    resp = await delete_user(sponsorbook_database, str(user_id))
 
     assert resp is None
 
-    deleted_user = await get_user(str(user_id), users)
+    deleted_user = await get_user(str(user_id), sponsorbook_database)
 
     assert deleted_user.is_archived

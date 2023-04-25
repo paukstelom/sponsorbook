@@ -24,7 +24,7 @@ async def test_create_organization():
 async def test_get_organizations():
     model = CreateOrganizationModel(title="hello", description="world")
     await create_organization(sponsorbook_database, model)
-    organization_list = [item async for item in get_all_organizations(database)]
+    organization_list = [item async for item in get_all_organizations(sponsorbook_database)]
 
     assert len(organization_list) > 0
 
