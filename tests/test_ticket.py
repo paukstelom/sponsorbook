@@ -14,44 +14,44 @@ from use_cases.ticket_cases.get_ticket import get_ticket
 from use_cases.ticket_cases.get_tickets import get_tickets
 
 client = AsyncIOMotorClient()
-db = client['sponsorbook']
-tickets = db['tickets']
-sponsors = db['sponsors']
-events = db['events']
+sponsorbook_database = client['sponsorbook']
 
 
 async def test_create_ticket():
-    event = await create_event(events, CreateEventModel(title='event title', description='event desc'))
-    sponsor = await create_sponsor(sponsors, CreateSponsorModel(title='sponsor title', description='sponsor desc'))
+    event = await create_event(sponsorbook_database, CreateEventModel(title='event title', description='event desc'))
+    sponsor = await create_sponsor(sponsorbook_database,
+                                   CreateSponsorModel(title='sponsor title', description='sponsor desc'))
     model = CreateTicketModel(title="hello", description="world", sponsor_id=str(sponsor.id), event_id=str(event.id))
-    result = await create_ticket(tickets, sponsors, events, model)
+    result = await create_ticket(sponsorbook_database, model)
 
     ticket_id = result.id
     assert ticket_id is not None
 
 
 async def test_create_ticket_non_existent_sponsor():
-    event = await create_event(events, CreateEventModel(title='event title', description='event desc'))
+    event = await create_event(sponsorbook_database, CreateEventModel(title='event title', description='event desc'))
     models = CreateTicketModel(title="hello", description="world", sponsor_id='123456789123123456789123',
                                event_id=str(event.id))
     with pytest.raises(SponsorNotFound):
-        await create_ticket(tickets, sponsors, events, models)
+        await create_ticket(sponsorbook_database, models)
 
 
 async def test_create_ticket_non_existent_event():
-    sponsor = await create_sponsor(sponsors, CreateSponsorModel(title='sponsor title', description='sponsor desc'))
+    sponsor = await create_sponsor(sponsorbook_database,
+                                   CreateSponsorModel(title='sponsor title', description='sponsor desc'))
     models = CreateTicketModel(title="hello", description="world", sponsor_id=str(sponsor.id),
                                event_id='123456789123123456789123')
     with pytest.raises(EventNotFound):
-        await create_ticket(tickets, sponsors, events, models)
+        await create_ticket(sponsorbook_database, models)
 
 
 async def test_get_tickets():
-    event = await create_event(events, CreateEventModel(title='event title', description='event desc'))
-    sponsor = await create_sponsor(sponsors, CreateSponsorModel(title='sponsor title', description='sponsor desc'))
+    event = await create_event(sponsorbook_database, CreateEventModel(title='event title', description='event desc'))
+    sponsor = await create_sponsor(sponsorbook_database,
+                                   CreateSponsorModel(title='sponsor title', description='sponsor desc'))
     model = CreateTicketModel(title="hello", description="world", sponsor_id=str(sponsor.id), event_id=str(event.id))
-    await create_ticket(tickets, sponsors, events, model)
-    tickets_list = [item async for item in get_tickets(tickets)]
+    await create_ticket(sponsorbook_database, model)
+    tickets_list = [item async for item in get_tickets(sponsorbook_database)]
 
     assert len(tickets_list) > 0
 
@@ -59,20 +59,21 @@ async def test_get_tickets():
 async def test_delete_non_existent_ticket():
     non_existent_id = PyObjectId()
     with pytest.raises(TicketNotFound):
-        await delete_ticket(tickets, str(non_existent_id))
+        await delete_ticket(sponsorbook_database, str(non_existent_id))
 
 
 async def test_delete_ticket():
-    event = await create_event(events, CreateEventModel(title='event title', description='event desc'))
-    sponsor = await create_sponsor(sponsors, CreateSponsorModel(title='sponsor title', description='sponsor desc'))
+    event = await create_event(sponsorbook_database, CreateEventModel(title='event title', description='event desc'))
+    sponsor = await create_sponsor(sponsorbook_database,
+                                   CreateSponsorModel(title='sponsor title', description='sponsor desc'))
     model = CreateTicketModel(title="hello", description="world", sponsor_id=str(sponsor.id), event_id=str(event.id))
-    result = await create_ticket(tickets, sponsors, events, model)
+    result = await create_ticket(sponsorbook_database, model)
 
     ticket_id = result.id
-    resp = await delete_ticket(tickets, str(ticket_id))
+    resp = await delete_ticket(sponsorbook_database, str(ticket_id))
 
     assert resp is None
 
-    deleted_ticket = await get_ticket(str(ticket_id), tickets)
+    deleted_ticket = await get_ticket(str(ticket_id), sponsorbook_database)
 
     assert deleted_ticket.is_archived
