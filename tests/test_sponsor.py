@@ -7,7 +7,7 @@ from models.sponsor_models import CreateSponsorModel
 from use_cases.sponsor_cases.create_sponsor import create_sponsor
 from use_cases.sponsor_cases.delete_sponsor import delete_sponsor
 from use_cases.sponsor_cases.get_sponsor import get_sponsor
-from use_cases.sponsor_cases.get_sponsors import get_sponsors
+from use_cases.sponsor_cases.get_all_sponsors import get_sponsors
 
 client = AsyncIOMotorClient()
 db = client['sponsorbook']

@@ -1,11 +1,11 @@
 from fastapi.encoders import jsonable_encoder
-from motor.motor_asyncio import AsyncIOMotorCollection
+from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from models.organization_models import Organization, CreateOrganizationModel
 
 
-async def create_organization(organizations: AsyncIOMotorCollection, data: CreateOrganizationModel) -> Organization:
+async def create_organization(database: AsyncIOMotorDatabase, data: CreateOrganizationModel) -> Organization:
     organization = Organization(title=data.title, description=data.description)
 
-    await organizations.insert_one(jsonable_encoder(organization))
+    await database.orgs.insert_one(jsonable_encoder(organization))
     return organization

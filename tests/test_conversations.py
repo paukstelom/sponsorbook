@@ -9,7 +9,7 @@ from models.ticket_models import CreateTicketModel
 from use_cases.conversation_cases.create_conversation import create_conversation
 from use_cases.conversation_cases.delete_conversation import delete_conversation
 from use_cases.conversation_cases.get_conversation import get_conversation
-from use_cases.conversation_cases.get_conversations import get_conversations
+from use_cases.conversation_cases.get_all_conversations import get_conversations
 from use_cases.event_cases.create_event import create_event
 from use_cases.sponsor_cases.create_sponsor import create_sponsor
 from use_cases.ticket_cases.create_ticket import create_ticket

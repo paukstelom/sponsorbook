@@ -5,7 +5,7 @@ from models.event_models import CreateEventModel
 from models.py_object_id import PyObjectId
 from use_cases.event_cases.create_event import create_event
 from use_cases.event_cases.delete_event import delete_event
-from use_cases.event_cases.get_events import get_events
+from use_cases.event_cases.get_all_events import get_events
 from use_cases.sponsor_cases.delete_sponsor import delete_sponsor
 from use_cases.sponsor_cases.get_sponsor import get_sponsor
 
