@@ -11,7 +11,9 @@ class User(BaseModel):
     name: str = Field()
     surname: str = Field()
     email: str = Field()
-    password: str = Field()
+    is_archived: bool = Field(default=False)
+    # password: str = Field()
+    sub_organization_id: PyObjectId = Field()
     creation_date: datetime = Field(default_factory=datetime.now)
 
     class Config:
@@ -31,6 +33,7 @@ class CreateUserModel(BaseModel):
     name: str = Field()
     surname: str = Field()
     email: str = Field()
+    sub_organization_id: str = Field()
 
     class Config:
         arbitrary_types_allowed = True

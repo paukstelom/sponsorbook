@@ -24,3 +24,7 @@ class OrganizationNotFound(BaseException):
 
 class SubOrganizationNotFound(BaseException):
     pass
+
+
+class UserNotFound(BaseException):
+    pass

@@ -1,5 +1,5 @@
 from fastapi.encoders import jsonable_encoder
-from motor.motor_asyncio import AsyncIOMotorCollection
+from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from models.errors import SponsorNotFound, EventNotFound
 from models.py_object_id import PyObjectId
@@ -7,15 +7,13 @@ from models.ticket_models import CreateTicketModel, Ticket
 
 
 async def create_ticket(
-        tickets: AsyncIOMotorCollection,
-        sponsors: AsyncIOMotorCollection,
-        events: AsyncIOMotorCollection,
+        database: AsyncIOMotorDatabase,
         data: CreateTicketModel) -> Ticket | None:
-    res = await sponsors.find_one({'_id': data.sponsor_id})
+    res = await database.sponsors.find_one({'_id': data.sponsor_id})
     if res is None:
         raise SponsorNotFound
 
-    res = await events.find_one({'_id': data.event_id})
+    res = await database.events.find_one({'_id': data.event_id})
     if res is None:
         raise EventNotFound
 
@@ -24,5 +22,5 @@ async def create_ticket(
                     sponsor_id=PyObjectId(data.sponsor_id),
                     event_id=PyObjectId(data.event_id))
 
-    await tickets.insert_one(jsonable_encoder(ticket))
+    await database.tickets.insert_one(jsonable_encoder(ticket))
     return ticket
