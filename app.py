@@ -1,20 +1,24 @@
-from typing import List, Optional
+from typing import List, Optional, Annotated
 
-from fastapi import FastAPI, Body, HTTPException
+from fastapi import FastAPI, Body, HTTPException, Depends
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import OAuth2PasswordBearer
 from motor.motor_asyncio import AsyncIOMotorClient
 
 from models.authentication_models import Credentials
 from models.errors import SponsorNotFound, EventNotFound, InvalidCredentials
+from models.sponsor_models import Sponsor, CreateSponsorModel
 from models.ticket_models import CreateTicketModel, Ticket
 from use_cases.authentication.login import authenticate_user
+from use_cases.sponsor_cases.create_sponsor import create_sponsor
+from use_cases.sponsor_cases.get_all_sponsors import get_sponsors
 from use_cases.ticket_cases.create_ticket import create_ticket
 from use_cases.ticket_cases.delete_ticket import delete_ticket
 from use_cases.ticket_cases.get_ticket import get_ticket
 from use_cases.ticket_cases.get_tickets import get_tickets
-from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
-
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
 origins = [
     "http://localhost:3000",
 ]
@@ -45,7 +49,23 @@ async def login_endpoint(body: Credentials = Body(...)):
         raise HTTPException(status_code=403, detail='Bad credentials')
 
 
-@app.post('/tickets', response_description="Create a ticket", response_model=Ticket)
+@app.get("/items/")
+async def read_items(token: Annotated[str, Depends(oauth2_scheme)]):
+    return {"token": token}
+
+
+@app.get('/sponsors', response_description='Get sponsors', response_model=List[Sponsor])
+async def get_sponsors_endpoint():
+    return [item async for item in get_sponsors(database=db)]
+
+
+@app.post('/sponsors', response_description='Create sponsor', response_model='')
+async def create_sponsor_endpoint(body: CreateSponsorModel = Body(...)):
+    sponsor = await create_sponsor(database=db, data=body)
+    return sponsor
+
+
+@app.get('/tickets', response_description="Create a ticket", response_model=Ticket)
 async def create_ticket_endpoint(body: CreateTicketModel = Body(...)):
     try:
         ticket = await create_ticket(tickets, sponsors, events, body)
@@ -66,7 +86,7 @@ async def get_ticket_endpoint(ticket_id: str):
 
 @app.get('/tickets', response_description="Get all tickets", response_model=List[Ticket])
 async def get_tickets_endpoint():
-    return [item async for item in get_tickets(tickets)]
+    return [item async for item in get_tickets(db)]
 
 
 @app.delete('/tickets/{id}', response_description="Archive a ticket", response_model=Ticket)

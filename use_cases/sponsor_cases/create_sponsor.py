@@ -5,7 +5,11 @@ from models.sponsor_models import CreateSponsorModel, Sponsor
 
 
 async def create_sponsor(database: AsyncIOMotorDatabase, data: CreateSponsorModel) -> Sponsor:
-    sponsor = Sponsor(title=data.title, description=data.description)
+    sponsor = Sponsor(name=data.name,
+                      description=data.email,
+                      email=data.email,
+                      phone=data.phone,
+                      category=data.category)
 
     await database.sponsors.insert_one(jsonable_encoder(sponsor))
     return sponsor
