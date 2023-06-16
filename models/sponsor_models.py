@@ -8,8 +8,10 @@ from models.py_object_id import PyObjectId
 
 class Sponsor(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
-    title: str = Field()
-    description: str = Field()
+    name: str = Field()
+    phone: str = Field()
+    category: str = Field()
+    email: str = Field()
     is_archived: bool = Field(default=False)
     creation_date: datetime = Field(default_factory=datetime.now)
 
@@ -27,8 +29,10 @@ class Sponsor(BaseModel):
 
 
 class CreateSponsorModel(BaseModel):
-    title: str = Field()
-    description: str = Field()
+    name: str = Field()
+    email: str = Field()
+    phone: str = Field()
+    category: str = Field()
 
     class Config:
         arbitrary_types_allowed = True
