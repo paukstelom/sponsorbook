@@ -11,5 +11,7 @@ jobs:
         uses: abatilo/actions-poetry@v2
       - name: Start MongoDB
         uses: supercharge/mongodb-github-action@1.8.0
+      - name: Install project
+        run: poetry install
       - name: Run tests
         run: poetry run pytest
