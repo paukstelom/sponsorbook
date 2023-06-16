@@ -13,7 +13,7 @@ class Sponsor(BaseModel):
     name: str = Field()
     contacts: List[Contact] = Field()
     category: str = Field()
-    description: str = Field(default_factory=lambda x: '')
+    description: str = Field(default='')
     is_archived: bool = Field(default=False)
     creation_date: datetime = Field(default_factory=datetime.now)
 
