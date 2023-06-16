@@ -19,11 +19,15 @@ client = AsyncIOMotorClient()
 sponsorbook_database = client['sponsorbook']
 
 
-async def test_create_conversation():
+async def default_create():
     event = await create_event(sponsorbook_database, CreateEventModel(title='event title',
                                                                       description='event desc'))
-    sponsor = await create_sponsor(sponsorbook_database, CreateSponsorModel(title='sponsor title',
-                                                                            description='sponsor desc'))
+
+    sponsor = await create_sponsor(sponsorbook_database, CreateSponsorModel(name='sponsor title',
+                                                                            description='sponsor desc',
+                                                                            contacts=list(),
+                                                                            category='food'))
+
     ticket = await create_ticket(sponsorbook_database, CreateTicketModel(title="hello",
                                                                          description="world",
                                                                          sponsor_id=str(sponsor.id),
@@ -31,8 +35,11 @@ async def test_create_conversation():
     model = CreateConversationModel(title="hello",
                                     description="world",
                                     ticket_id=str(ticket.id))
-    result = await create_conversation(sponsorbook_database, model)
+    return await create_conversation(sponsorbook_database, model)
 
+
+async def test_create_conversation():
+    result = await default_create()
     conversation_id = result.id
     assert conversation_id is not None
 
@@ -46,18 +53,7 @@ async def test_create_conversation_non_existent_ticket():
 
 
 async def test_get_conversations():
-    event = await create_event(sponsorbook_database, CreateEventModel(title='event title',
-                                                                      description='event desc'))
-    sponsor = await create_sponsor(sponsorbook_database, CreateSponsorModel(title='sponsor title',
-                                                                            description='sponsor desc'))
-    ticket = await create_ticket(sponsorbook_database, CreateTicketModel(title="hello",
-                                                                         description="world",
-                                                                         sponsor_id=str(sponsor.id),
-                                                                         event_id=str(event.id)))
-    model = CreateConversationModel(title="hello",
-                                    description="world",
-                                    ticket_id=str(ticket.id))
-    await create_conversation(sponsorbook_database, model)
+    await default_create()
     conversation_list = [item async for item in get_conversations(sponsorbook_database)]
 
     assert len(conversation_list) > 0
@@ -70,18 +66,7 @@ async def test_delete_non_existent_conversation():
 
 
 async def test_delete_conversation():
-    event = await create_event(sponsorbook_database, CreateEventModel(title='event title',
-                                                                      description='event desc'))
-    sponsor = await create_sponsor(sponsorbook_database, CreateSponsorModel(title='sponsor title',
-                                                                            description='sponsor desc'))
-    ticket = await create_ticket(sponsorbook_database, CreateTicketModel(title="hello",
-                                                                         description="world",
-                                                                         sponsor_id=str(sponsor.id),
-                                                                         event_id=str(event.id)))
-    model = CreateConversationModel(title="hello",
-                                    description="world",
-                                    ticket_id=str(ticket.id))
-    result = await create_conversation(sponsorbook_database, model)
+    result = await default_create()
 
     conversation_id = result.id
     resp = await delete_conversation(sponsorbook_database, str(conversation_id))

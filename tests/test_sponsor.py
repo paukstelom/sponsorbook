@@ -13,17 +13,20 @@ client = AsyncIOMotorClient()
 sponsorbook_database = client['sponsorbook']
 
 
+async def default_create():
+    model = CreateSponsorModel(name="hello", category="food", contacts=[])
+    return await create_sponsor(sponsorbook_database, model)
+
+
 async def test_create_sponsor():
-    model = CreateSponsorModel(title="hello", description="world")
-    result = await create_sponsor(sponsorbook_database, model)
+    result = await default_create()
 
     sponsor_id = result.id
     assert sponsor_id is not None
 
 
 async def test_get_sponsors():
-    model = CreateSponsorModel(title="hello", description="world")
-    await create_sponsor(sponsorbook_database, model)
+    await default_create()
     sponsor_list = [item async for item in get_sponsors(sponsorbook_database)]
 
     assert len(sponsor_list) > 0
@@ -36,9 +39,7 @@ async def test_delete_non_existent_sponsor():
 
 
 async def test_delete_sponsor():
-    model = CreateSponsorModel(title="hello", description="world")
-    result = await create_sponsor(sponsorbook_database, model)
-
+    result = await default_create()
     sponsor_id = result.id
     resp = await delete_sponsor(sponsorbook_database, str(sponsor_id))
 
