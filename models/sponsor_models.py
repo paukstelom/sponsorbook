@@ -1,17 +1,19 @@
 from datetime import datetime
+from typing import List
 
 from bson import ObjectId
 from pydantic import BaseModel, Field
 
+from models.contact_models import Contact
 from models.py_object_id import PyObjectId
 
 
 class Sponsor(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     name: str = Field()
-    phone: str = Field()
+    contacts: List[Contact] = Field()
     category: str = Field()
-    email: str = Field()
+    description: str = Field(default='')
     is_archived: bool = Field(default=False)
     creation_date: datetime = Field(default_factory=datetime.now)
 
@@ -30,8 +32,8 @@ class Sponsor(BaseModel):
 
 class CreateSponsorModel(BaseModel):
     name: str = Field()
-    email: str = Field()
-    phone: str = Field()
+    description: str = Field(default="")
+    contacts: List[Contact] = Field()
     category: str = Field()
 
     class Config:
