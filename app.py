@@ -35,7 +35,6 @@ app.add_middleware(
 
 client = AsyncIOMotorClient()
 db = client['sponsorbook']
-
 tickets = db['tickets']
 sponsors = db['sponsors']
 events = db['events']
@@ -66,9 +65,9 @@ async def get_one_sponsor_endpoint(sponsor_id: str):
     return await get_sponsor(sponsor_id=sponsor_id, database=db)
 
 
-@app.post('/sponsor/{sponsor_id', response_description='Delete sponsor', response_model=Sponsor)
+@app.delete('/sponsors/{sponsor_id}', response_description='Delete sponsor')
 async def delete_sponsor_endpoint(sponsor_id: str):
-    return await delete_sponsor(sponsor_id=sponsor_id, database=db)
+    await delete_sponsor(sponsor_id=sponsor_id, database=db)
 
 
 @app.post('/sponsors', response_description='Create sponsor', response_model='')

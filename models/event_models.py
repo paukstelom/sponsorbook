@@ -11,6 +11,8 @@ class Event(BaseModel):
     title: str = Field()
     description: str = Field()
     is_archived: bool = Field(default=False)
+    status: str = Field(default='Ongoing')
+    sub_organization_ids: list[str] = Field()
     creation_date: datetime = Field(default_factory=datetime.now)
 
     class Config:
@@ -29,6 +31,7 @@ class Event(BaseModel):
 class CreateEventModel(BaseModel):
     title: str = Field()
     description: str = Field()
+    sub_organization_id: list[str] = Field()
 
     class Config:
         arbitrary_types_allowed = True
