@@ -10,7 +10,7 @@ from use_cases.organization_cases.get_all_organizations import get_all_organizat
 from use_cases.organization_cases.get_organization import get_organization
 
 client = AsyncIOMotorClient()
-sponsorbook_database = client['sponsorbook']
+sponsorbook_database = client["sponsorbook"]
 
 
 async def test_create_organization():
@@ -24,7 +24,9 @@ async def test_create_organization():
 async def test_get_organizations():
     model = CreateOrganizationModel(title="hello", description="world")
     await create_organization(sponsorbook_database, model)
-    organization_list = [item async for item in get_all_organizations(sponsorbook_database)]
+    organization_list = [
+        item async for item in get_all_organizations(sponsorbook_database)
+    ]
 
     assert len(organization_list) > 0
 
@@ -44,6 +46,8 @@ async def test_delete_organization():
 
     assert resp is None
 
-    deleted_organization = await get_organization(str(organization_id), sponsorbook_database)
+    deleted_organization = await get_organization(
+        str(organization_id), sponsorbook_database
+    )
 
     assert deleted_organization.is_archived

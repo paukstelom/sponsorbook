@@ -16,28 +16,40 @@ from use_cases.sponsor_cases.create_sponsor import create_sponsor
 from use_cases.ticket_cases.create_ticket import create_ticket
 
 client = AsyncIOMotorClient()
-sponsorbook_database = client['sponsorbook']
+sponsorbook_database = client["sponsorbook"]
 
 
 async def default_create():
-    event = await create_event(sponsorbook_database, CreateEventModel(title='event title',
-                                                                      description='event desc'))
+    event = await create_event(
+        sponsorbook_database,
+        CreateEventModel(name="event title", description="event desc"),
+    )
 
-    sponsor = await create_sponsor(sponsorbook_database, CreateSponsorModel(name='sponsor title',
-                                                                            company_number='123',
-                                                                            description='sponsor desc',
-                                                                            website='google.com',
-                                                                            contacts=list(),
-                                                                            category='food',
-                                                                            rating=Rating(score="123", info="bruh")))
+    sponsor = await create_sponsor(
+        sponsorbook_database,
+        CreateSponsorModel(
+            name="sponsor title",
+            company_number="123",
+            description="sponsor desc",
+            website="google.com",
+            contacts=list(),
+            category="food",
+            rating=Rating(score="123", info="bruh"),
+        ),
+    )
 
-    ticket = await create_ticket(sponsorbook_database, CreateTicketModel(title="hello",
-                                                                         description="world",
-                                                                         sponsor_id=str(sponsor.id),
-                                                                         event_id=str(event.id)))
-    model = CreateConversationModel(title="hello",
-                                    description="world",
-                                    ticket_id=str(ticket.id))
+    ticket = await create_ticket(
+        sponsorbook_database,
+        CreateTicketModel(
+            title="hello",
+            description="world",
+            sponsor_id=str(sponsor.id),
+            event_id=str(event.id),
+        ),
+    )
+    model = CreateConversationModel(
+        title="hello", description="world", ticket_id=str(ticket.id)
+    )
     return await create_conversation(sponsorbook_database, model)
 
 
@@ -48,9 +60,9 @@ async def test_create_conversation():
 
 
 async def test_create_conversation_non_existent_ticket():
-    model = CreateConversationModel(title="hello",
-                                    description="world",
-                                    ticket_id='123456789123123456789123')
+    model = CreateConversationModel(
+        title="hello", description="world", ticket_id="123456789123123456789123"
+    )
     with pytest.raises(TicketNotFound):
         await create_conversation(sponsorbook_database, model)
 
@@ -76,6 +88,8 @@ async def test_delete_conversation():
 
     assert resp is None
 
-    deleted_conversation = await get_conversation(str(conversation_id), sponsorbook_database)
+    deleted_conversation = await get_conversation(
+        str(conversation_id), sponsorbook_database
+    )
 
     assert deleted_conversation.is_archived

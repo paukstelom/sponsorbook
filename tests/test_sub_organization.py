@@ -6,19 +6,29 @@ from models.organization_models import CreateOrganizationModel
 from models.py_object_id import PyObjectId
 from models.sub_organization_models import CreateSubOrganizationModel
 from use_cases.organization_cases.create_organization import create_organization
-from use_cases.sub_organization_cases.create_sub_organization import create_sub_organization
-from use_cases.sub_organization_cases.delete_sub_organization import delete_sub_organization
-from use_cases.sub_organization_cases.get_all_sub_organizations import get_sub_organization
+from use_cases.sub_organization_cases.create_sub_organization import (
+    create_sub_organization,
+)
+from use_cases.sub_organization_cases.delete_sub_organization import (
+    delete_sub_organization,
+)
+from use_cases.sub_organization_cases.get_all_sub_organizations import (
+    get_sub_organization,
+)
 from use_cases.sub_organization_cases.get_sub_organizations import get_sub_organizations
 
 client = AsyncIOMotorClient()
-sponsorbook_database = client['sponsorbook']
+sponsorbook_database = client["sponsorbook"]
 
 
 async def test_create_sub_organization():
-    organization = await create_organization(sponsorbook_database, CreateOrganizationModel(title='event title',
-                                                                                           description='event desc'))
-    model = CreateSubOrganizationModel(title="hello", description="world", organization_id=str(organization.id))
+    organization = await create_organization(
+        sponsorbook_database,
+        CreateOrganizationModel(title="event title", description="event desc"),
+    )
+    model = CreateSubOrganizationModel(
+        title="hello", description="world", organization_id=str(organization.id)
+    )
     result = await create_sub_organization(sponsorbook_database, model)
 
     sub_organization_id = result.id
@@ -26,20 +36,26 @@ async def test_create_sub_organization():
 
 
 async def test_create_sub_organization_non_existent_organization():
-    model = CreateSubOrganizationModel(title="hello",
-                                       description="world",
-                                       organization_id='123456789123123456789123')
+    model = CreateSubOrganizationModel(
+        title="hello", description="world", organization_id="123456789123123456789123"
+    )
 
     with pytest.raises(OrganizationNotFound):
         await create_sub_organization(sponsorbook_database, model)
 
 
 async def test_get_sub_organizations():
-    organization = await create_organization(sponsorbook_database, CreateOrganizationModel(title='event title',
-                                                                                           description='event desc'))
-    model = CreateSubOrganizationModel(title="hello", description="world", organization_id=str(organization.id))
+    organization = await create_organization(
+        sponsorbook_database,
+        CreateOrganizationModel(title="event title", description="event desc"),
+    )
+    model = CreateSubOrganizationModel(
+        title="hello", description="world", organization_id=str(organization.id)
+    )
     await create_sub_organization(sponsorbook_database, model)
-    organizations_list = [item async for item in get_sub_organizations(sponsorbook_database)]
+    organizations_list = [
+        item async for item in get_sub_organizations(sponsorbook_database)
+    ]
 
     assert len(organizations_list) > 0
 
@@ -51,9 +67,13 @@ async def test_delete_non_existent_sub_organization():
 
 
 async def test_delete_sub_organization():
-    organization = await create_organization(sponsorbook_database, CreateOrganizationModel(title='event title',
-                                                                                           description='event desc'))
-    model = CreateSubOrganizationModel(title="hello", description="world", organization_id=str(organization.id))
+    organization = await create_organization(
+        sponsorbook_database,
+        CreateOrganizationModel(title="event title", description="event desc"),
+    )
+    model = CreateSubOrganizationModel(
+        title="hello", description="world", organization_id=str(organization.id)
+    )
     result = await create_sub_organization(sponsorbook_database, model)
 
     sub_organization_id = result.id
@@ -61,6 +81,8 @@ async def test_delete_sub_organization():
 
     assert resp is None
 
-    deleted_sub_organization = await get_sub_organization(str(sub_organization_id), sponsorbook_database)
+    deleted_sub_organization = await get_sub_organization(
+        str(sub_organization_id), sponsorbook_database
+    )
 
     assert deleted_sub_organization.is_archived

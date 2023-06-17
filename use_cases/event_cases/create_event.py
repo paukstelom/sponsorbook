@@ -6,7 +6,7 @@ from models.event_models import Event, CreateEventModel
 
 async def create_event(database: AsyncIOMotorDatabase, data: CreateEventModel) -> Event:
     event = Event(
-        title=data.title,
+        name=data.name,
         description=data.description,
         sub_organization_ids=data.sub_organization_ids,
     )

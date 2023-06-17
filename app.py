@@ -25,20 +25,20 @@ app.add_middleware(
 )
 
 client = AsyncIOMotorClient()
-db = client['sponsorbook']
+db = client["sponsorbook"]
 
 app.include_router(sponsors.router)
 app.include_router(tickets.router)
 app.include_router(events.router)
 
 
-@app.post('/login', response_description='Login', response_model=str)
+@app.post("/login", response_description="Login", response_model=str)
 async def login_endpoint(body: Credentials = Body(...)):
     try:
         token = authenticate_user(body)
         return token
     except InvalidCredentials:
-        raise HTTPException(status_code=403, detail='Bad credentials')
+        raise HTTPException(status_code=403, detail="Bad credentials")
 
 
 @app.get("/items/")
