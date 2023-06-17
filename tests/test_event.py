@@ -4,15 +4,11 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from models.errors import EventNotFound
 from models.event_models import CreateEventModel
 from models.py_object_id import PyObjectId
+from tests.defaults import default_event, sponsorbook_database
 from use_cases.event_cases.create_event import create_event
 from use_cases.event_cases.delete_event import delete_event
 from use_cases.event_cases.get_all_events import get_events
 from use_cases.event_cases.get_event import get_event
-
-client = AsyncIOMotorClient()
-sponsorbook_database = client["sponsorbook"]
-
-default_event = CreateEventModel(name="hello", description="world")
 
 
 async def test_create_event():

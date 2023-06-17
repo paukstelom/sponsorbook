@@ -1,11 +1,13 @@
 import pytest
-from motor.motor_asyncio import AsyncIOMotorClient
 
 from models.errors import SponsorNotFound, TicketNotFound, EventNotFound
-from models.event_models import CreateEventModel
 from models.py_object_id import PyObjectId
-from models.sponsor_models import CreateSponsorModel, Rating
-from models.ticket_models import CreateTicketModel
+from tests.defaults import (
+    default_sponsor,
+    default_event,
+    default_ticket,
+    sponsorbook_database,
+)
 from use_cases.event_cases.create_event import create_event
 from use_cases.sponsor_cases.create_sponsor import create_sponsor
 from use_cases.ticket_cases.create_ticket import create_ticket
@@ -13,31 +15,11 @@ from use_cases.ticket_cases.delete_ticket import delete_ticket
 from use_cases.ticket_cases.get_ticket import get_ticket
 from use_cases.ticket_cases.get_tickets import get_tickets
 
-client = AsyncIOMotorClient()
-sponsorbook_database = client["sponsorbook"]
-
-default_sponsor = CreateSponsorModel(
-    name="sponsor title",
-    company_number="123123",
-    website="google.com",
-    rating=Rating(score="5", info="best spons"),
-    description="sponsor desc",
-    contacts=[],
-    category="food",
-)
-
-default_event = CreateEventModel(name="event title", description="event desc")
-
 
 async def default_create():
     event = await create_event(sponsorbook_database, default_event)
     sponsor = await create_sponsor(sponsorbook_database, default_sponsor)
-    model = CreateTicketModel(
-        title="hello",
-        description="world",
-        sponsor_id=str(sponsor.id),
-        event_id=str(event.id),
-    )
+    model = default_ticket(str(sponsor.id), str(event.id))
     return await create_ticket(sponsorbook_database, model)
 
 
@@ -49,9 +31,7 @@ async def test_create_ticket():
 
 async def test_create_ticket_non_existent_sponsor():
     event = await create_event(sponsorbook_database, default_event)
-    models = CreateTicketModel(
-        title="hello",
-        description="world",
+    models = default_ticket(
         sponsor_id="123456789123123456789123",
         event_id=str(event.id),
     )
@@ -61,9 +41,7 @@ async def test_create_ticket_non_existent_sponsor():
 
 async def test_create_ticket_non_existent_event():
     sponsor = await create_sponsor(sponsorbook_database, default_sponsor)
-    models = CreateTicketModel(
-        title="hello",
-        description="world",
+    models = default_ticket(
         sponsor_id=str(sponsor.id),
         event_id="123456789123123456789123",
     )
@@ -72,15 +50,7 @@ async def test_create_ticket_non_existent_event():
 
 
 async def test_get_tickets():
-    event = await create_event(sponsorbook_database, default_event)
-    sponsor = await create_sponsor(sponsorbook_database, default_sponsor)
-    model = CreateTicketModel(
-        title="hello",
-        description="world",
-        sponsor_id=str(sponsor.id),
-        event_id=str(event.id),
-    )
-    await create_ticket(sponsorbook_database, model)
+    await default_create()
     tickets_list = [item async for item in get_tickets(sponsorbook_database)]
 
     assert len(tickets_list) > 0

@@ -4,26 +4,22 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from models.errors import OrganizationNotFound
 from models.organization_models import CreateOrganizationModel
 from models.py_object_id import PyObjectId
+from tests.defaults import default_organization, sponsorbook_database
 from use_cases.organization_cases.create_organization import create_organization
 from use_cases.organization_cases.delete_organization import delete_organization
 from use_cases.organization_cases.get_all_organizations import get_all_organizations
 from use_cases.organization_cases.get_organization import get_organization
 
-client = AsyncIOMotorClient()
-sponsorbook_database = client["sponsorbook"]
-
 
 async def test_create_organization():
-    model = CreateOrganizationModel(title="hello", description="world")
-    result = await create_organization(sponsorbook_database, model)
+    result = await create_organization(sponsorbook_database, default_organization)
 
     organization_id = result.id
     assert organization_id is not None
 
 
 async def test_get_organizations():
-    model = CreateOrganizationModel(title="hello", description="world")
-    await create_organization(sponsorbook_database, model)
+    await create_organization(sponsorbook_database, default_organization)
     organization_list = [
         item async for item in get_all_organizations(sponsorbook_database)
     ]
@@ -38,8 +34,7 @@ async def test_delete_non_existent_organization():
 
 
 async def test_delete_organization():
-    model = CreateOrganizationModel(title="hello", description="world")
-    result = await create_organization(sponsorbook_database, model)
+    result = await create_organization(sponsorbook_database, default_organization)
 
     organization_id = result.id
     resp = await delete_organization(sponsorbook_database, str(organization_id))

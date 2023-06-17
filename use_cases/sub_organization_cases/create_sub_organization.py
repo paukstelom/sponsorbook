@@ -14,7 +14,7 @@ async def create_sub_organization(
         raise OrganizationNotFound
 
     sub_organization = SubOrganization(
-        title=data.name,
+        name=data.name,
         description=data.description,
         organization_id=PyObjectId(data.organization_id),
     )
