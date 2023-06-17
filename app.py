@@ -11,7 +11,9 @@ from models.sponsor_models import Sponsor, CreateSponsorModel
 from models.ticket_models import CreateTicketModel, Ticket
 from use_cases.authentication.login import authenticate_user
 from use_cases.sponsor_cases.create_sponsor import create_sponsor
+from use_cases.sponsor_cases.delete_sponsor import delete_sponsor
 from use_cases.sponsor_cases.get_all_sponsors import get_sponsors
+from use_cases.sponsor_cases.get_sponsor import get_sponsor
 from use_cases.ticket_cases.create_ticket import create_ticket
 from use_cases.ticket_cases.delete_ticket import delete_ticket
 from use_cases.ticket_cases.get_ticket import get_ticket
@@ -57,6 +59,16 @@ async def read_items(token: Annotated[str, Depends(oauth2_scheme)]):
 @app.get('/sponsors', response_description='Get sponsors', response_model=List[Sponsor])
 async def get_sponsors_endpoint():
     return [item async for item in get_sponsors(database=db)]
+
+
+@app.get('/sponsor/{sponsor_id}', response_description='Get one sponsor', response_model=Sponsor)
+async def get_one_sponsor_endpoint(sponsor_id: str):
+    return await get_sponsor(sponsor_id=sponsor_id, database=db)
+
+
+@app.post('/sponsor/{sponsor_id', response_description='Delete sponsor', response_model=Sponsor)
+async def delete_sponsor_endpoint(sponsor_id: str):
+    return await delete_sponsor(sponsor_id=sponsor_id, database=db)
 
 
 @app.post('/sponsors', response_description='Create sponsor', response_model='')

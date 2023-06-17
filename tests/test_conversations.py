@@ -5,7 +5,7 @@ from models.conversation_models import CreateConversationModel
 from models.errors import TicketNotFound, ConversationNotFound
 from models.event_models import CreateEventModel
 from models.py_object_id import PyObjectId
-from models.sponsor_models import CreateSponsorModel
+from models.sponsor_models import CreateSponsorModel, Rating
 from models.ticket_models import CreateTicketModel
 from use_cases.conversation_cases.create_conversation import create_conversation
 from use_cases.conversation_cases.delete_conversation import delete_conversation
@@ -24,9 +24,12 @@ async def default_create():
                                                                       description='event desc'))
 
     sponsor = await create_sponsor(sponsorbook_database, CreateSponsorModel(name='sponsor title',
+                                                                            company_number='123',
                                                                             description='sponsor desc',
+                                                                            website='google.com',
                                                                             contacts=list(),
-                                                                            category='food'))
+                                                                            category='food',
+                                                                            rating=Rating(score="123", info="bruh")))
 
     ticket = await create_ticket(sponsorbook_database, CreateTicketModel(title="hello",
                                                                          description="world",

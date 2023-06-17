@@ -4,7 +4,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from models.errors import SponsorNotFound, TicketNotFound, EventNotFound
 from models.event_models import CreateEventModel
 from models.py_object_id import PyObjectId
-from models.sponsor_models import CreateSponsorModel
+from models.sponsor_models import CreateSponsorModel, Rating
 from models.ticket_models import CreateTicketModel
 from use_cases.event_cases.create_event import create_event
 from use_cases.sponsor_cases.create_sponsor import create_sponsor
@@ -16,7 +16,11 @@ from use_cases.ticket_cases.get_tickets import get_tickets
 client = AsyncIOMotorClient()
 sponsorbook_database = client['sponsorbook']
 
-default_sponsor = CreateSponsorModel(name='sponsor title', description='sponsor desc', contacts=[],
+default_sponsor = CreateSponsorModel(name='sponsor title',
+                                     company_number='123123',
+                                     website='google.com',
+                                     rating=Rating(score='5', info='best spons'),
+                                     description='sponsor desc', contacts=[],
                                      category="food")
 
 

@@ -6,6 +6,9 @@ from models.sponsor_models import CreateSponsorModel, Sponsor
 
 async def create_sponsor(database: AsyncIOMotorDatabase, data: CreateSponsorModel) -> Sponsor:
     sponsor = Sponsor(name=data.name,
+                      rating=data.rating,
+                      company_number=data.company_number,
+                      website=data.website,
                       contacts=data.contacts,
                       description=data.description,
                       category=data.category)

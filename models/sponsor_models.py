@@ -8,13 +8,22 @@ from models.contact_models import Contact
 from models.py_object_id import PyObjectId
 
 
+class Rating(BaseModel):
+    score: str = Field()
+    info: str = Field()
+
+
 class Sponsor(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
+    company_number: str = Field(alias='companyNumber')
     name: str = Field()
     contacts: List[Contact] = Field()
+    website: str = Field()
     category: str = Field()
-    description: str = Field(default='')
+    rating: Rating = Field()
+    description: str = Field()
     is_archived: bool = Field(default=False)
+    status: str = Field(default='Available')
     creation_date: datetime = Field(default_factory=datetime.now)
 
     class Config:
@@ -31,10 +40,13 @@ class Sponsor(BaseModel):
 
 
 class CreateSponsorModel(BaseModel):
+    company_number: str = Field(alias='companyNumber')
     name: str = Field()
-    description: str = Field(default="")
+    description: str = Field()
     contacts: List[Contact] = Field()
     category: str = Field()
+    rating: Rating = Field()
+    website: str = Field()
 
     class Config:
         arbitrary_types_allowed = True
