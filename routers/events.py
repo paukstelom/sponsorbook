@@ -42,6 +42,6 @@ async def get_events_endpoint():
     return [item async for item in get_events(db)]
 
 
-@router.delete("/{id}", response_description="Archive an event", response_model=Event)
+@router.delete("/{id}", response_description="Archive an event")
 async def delete_event_endpoint(id: str):
     return await delete_event(db, id)
