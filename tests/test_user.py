@@ -1,4 +1,5 @@
 import pytest
+from argon2 import PasswordHasher
 
 from models.errors import UserNotFound
 from models.py_object_id import PyObjectId
@@ -12,9 +13,11 @@ from use_cases.user_cases.get_all_users import get_user
 from use_cases.user_cases.get_conversations import get_all_users
 
 
+hasher = PasswordHasher()
+
 async def default_create():
     model = default_user
-    return await create_user(sponsorbook_database, model)
+    return await create_user(sponsorbook_database, model, hasher)
 
 
 async def test_create_user():

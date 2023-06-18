@@ -5,7 +5,7 @@ from models.organization_models import Organization, CreateOrganizationModel
 
 
 async def create_organization(
-    database: AsyncIOMotorDatabase, data: CreateOrganizationModel
+        database: AsyncIOMotorDatabase, data: CreateOrganizationModel
 ) -> Organization:
     organization = Organization(name=data.name)
 

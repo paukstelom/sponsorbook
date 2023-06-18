@@ -1,8 +1,6 @@
 import pytest
-from motor.motor_asyncio import AsyncIOMotorClient
 
 from models.errors import OrganizationNotFound
-from models.organization_models import CreateOrganizationModel
 from models.py_object_id import PyObjectId
 from tests.defaults import default_organization, sponsorbook_database
 from use_cases.organization_cases.create_organization import create_organization

@@ -8,7 +8,7 @@ from models.sub_organization_models import CreateSubOrganizationModel
 from models.ticket_models import CreateTicketModel
 from models.user_models import CreateUserModel
 
-default_organization = CreateOrganizationModel(name="VU")
+default_organization = CreateOrganizationModel(name="VU", user_email="123")
 
 default_event = CreateEventModel(name="hello", description="world")
 
@@ -38,7 +38,7 @@ def default_ticket(sponsor_id: str, event_id: str):
     )
 
 
-default_user = CreateUserModel(email="123@abc.com", type="Developer")
+default_user = CreateUserModel(email="123@abc.com", type="Developer", password="test")
 
 
 def default_conversation(ticket_id: str):
