@@ -5,6 +5,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 
 from models.errors import SponsorNotFound, EventNotFound
 from models.event_models import CreateEventModel, Event
+from use_cases.event_cases.close_event import close_event
 from use_cases.event_cases.create_event import create_event
 from use_cases.event_cases.delete_event import delete_event
 from use_cases.event_cases.get_all_events import get_events
@@ -45,3 +46,8 @@ async def get_events_endpoint():
 @router.delete("/{id}", response_description="Archive an event")
 async def delete_event_endpoint(id: str):
     return await delete_event(db, id)
+
+
+@router.post("/{id}/close", response_description='Close an event')
+async def close_event_endpoint(id: str):
+    return await close_event(db, id)
