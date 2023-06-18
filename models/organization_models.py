@@ -4,6 +4,7 @@ from bson import ObjectId
 from pydantic import BaseModel, Field
 
 from models.py_object_id import PyObjectId
+from models.user_models import User, CreateUserModel
 
 
 class Organization(BaseModel):
@@ -27,6 +28,7 @@ class Organization(BaseModel):
 
 class CreateOrganizationModel(BaseModel):
     name: str = Field()
+    user_email: str = Field()
 
     class Config:
         arbitrary_types_allowed = True

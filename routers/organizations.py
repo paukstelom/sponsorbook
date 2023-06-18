@@ -1,13 +1,27 @@
 from typing import List
 
+from argon2 import PasswordHasher
 from fastapi import APIRouter, Body
 from motor.motor_asyncio import AsyncIOMotorClient
 
 from models.organization_models import Organization, CreateOrganizationModel
+from models.sub_organization_models import SubOrganization, CreateSubOrganizationModel
+from models.user_models import CreateUserModel
 from use_cases.organization_cases.create_organization import create_organization
 from use_cases.organization_cases.delete_organization import delete_organization
 from use_cases.organization_cases.get_all_organizations import get_all_organizations
 from use_cases.organization_cases.get_organization import get_organization
+from use_cases.sub_organization_cases.create_sub_organization import (
+    create_sub_organization,
+)
+from use_cases.sub_organization_cases.delete_sub_organization import (
+    delete_sub_organization,
+)
+from use_cases.sub_organization_cases.get_all_sub_organizations import (
+    get_sub_organization,
+)
+from use_cases.sub_organization_cases.get_sub_organizations import get_sub_organizations
+from use_cases.user_cases.create_user import create_user
 
 router = APIRouter(prefix="/organizations")
 
@@ -37,8 +51,7 @@ async def delete_organization_endpoint(organization_id: str):
 
 
 @router.post(
-    "", response_description="Create organization", response_model=Organization
-)
+    "", response_description="Create organization")
 async def create_organization_endpoint(body: CreateOrganizationModel = Body()):
-    organization = await create_organization(database=db, data=body)
-    return organization
+    await create_organization(database=db, data=body)
+    await create_user(db, CreateUserModel(email=body.user_email, type='president', password='qwerty'), PasswordHasher())
