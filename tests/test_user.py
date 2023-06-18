@@ -6,57 +6,54 @@ from models.organization_models import CreateOrganizationModel
 from models.py_object_id import PyObjectId
 from models.sub_organization_models import CreateSubOrganizationModel
 from models.user_models import CreateUserModel
+from tests.defaults import (
+    default_organization,
+    default_sub_organization,
+    default_user,
+    sponsorbook_database,
+)
 from use_cases.organization_cases.create_organization import create_organization
-from use_cases.sub_organization_cases.create_sub_organization import create_sub_organization
+from use_cases.sub_organization_cases.create_sub_organization import (
+    create_sub_organization,
+)
 from use_cases.user_cases.create_user import create_user
 from use_cases.user_cases.delete_user import delete_user
 from use_cases.user_cases.get_all_users import get_user
 from use_cases.user_cases.get_conversations import get_all_users
 
-client = AsyncIOMotorClient()
-sponsorbook_database = client['sponsorbook']
+
+async def default_create():
+    organization = await create_organization(sponsorbook_database, default_organization)
+    sub_organization = await create_sub_organization(
+        sponsorbook_database,
+        default_sub_organization(
+            organization_id=str(organization.id),
+        ),
+    )
+
+    model = default_user(
+        sub_org_id=str(sub_organization.id),
+    )
+    return await create_user(sponsorbook_database, model)
 
 
 async def test_create_user():
-    organization = await create_organization(sponsorbook_database, CreateOrganizationModel(title='org title',
-                                                                                           description='org desc'))
-    sub_organization = await create_sub_organization(sponsorbook_database,
-                                                     CreateSubOrganizationModel(title='suborg title',
-                                                                                description='suborg desc',
-                                                                                organization_id=str(organization.id)))
-
-    model = CreateUserModel(name="hello",
-                            surname="world",
-                            email='123@abc.com',
-                            sub_organization_id=str(sub_organization.id))
-    result = await create_user(sponsorbook_database, model)
+    result = await default_create()
 
     user_id = result.id
     assert user_id is not None
 
 
 async def test_create_user_non_existent_sub_organization():
-    model = CreateUserModel(name="hello",
-                            surname='world',
-                            email="world",
-                            sub_organization_id='123456789123123456789123')
+    model = default_user(
+        sub_org_id="123456789123123456789123",
+    )
     with pytest.raises(SubOrganizationNotFound):
         await create_user(sponsorbook_database, model)
 
 
 async def test_get_all_users():
-    organization = await create_organization(sponsorbook_database, CreateOrganizationModel(title='org title',
-                                                                                           description='org desc'))
-    sub_organization = await create_sub_organization(sponsorbook_database,
-                                                     CreateSubOrganizationModel(title='suborg title',
-                                                                                description='suborg desc',
-                                                                                organization_id=str(organization.id)))
-
-    model = CreateUserModel(name="hello",
-                            surname="world",
-                            email='123@abc.com',
-                            sub_organization_id=str(sub_organization.id))
-    await create_user(sponsorbook_database, model)
+    await default_create()
     users_list = [item async for item in get_all_users(sponsorbook_database)]
 
     assert len(users_list) > 0
@@ -69,18 +66,7 @@ async def test_delete_non_existent_user():
 
 
 async def test_delete_user():
-    organization = await create_organization(sponsorbook_database, CreateOrganizationModel(title='org title',
-                                                                                           description='org desc'))
-    sub_organization = await create_sub_organization(sponsorbook_database,
-                                                     CreateSubOrganizationModel(title='suborg title',
-                                                                                description='suborg desc',
-                                                                                organization_id=str(organization.id)))
-
-    model = CreateUserModel(name="hello",
-                            surname="world",
-                            email='123@abc.com',
-                            sub_organization_id=str(sub_organization.id))
-    result = await create_user(sponsorbook_database, model)
+    result = await default_create()
 
     user_id = result.id
     resp = await delete_user(sponsorbook_database, str(user_id))

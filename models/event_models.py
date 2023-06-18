@@ -8,9 +8,11 @@ from models.py_object_id import PyObjectId
 
 class Event(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
-    title: str = Field()
+    name: str = Field()
     description: str = Field()
     is_archived: bool = Field(default=False)
+    status: str = Field(default="Ongoing")
+    sub_organization_ids: list[str] = Field(default=[])
     creation_date: datetime = Field(default_factory=datetime.now)
 
     class Config:
@@ -27,8 +29,9 @@ class Event(BaseModel):
 
 
 class CreateEventModel(BaseModel):
-    title: str = Field()
+    name: str = Field()
     description: str = Field()
+    sub_organization_ids: list[str] = Field(default=[])
 
     class Config:
         arbitrary_types_allowed = True

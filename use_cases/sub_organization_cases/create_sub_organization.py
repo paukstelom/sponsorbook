@@ -7,15 +7,17 @@ from models.sub_organization_models import CreateSubOrganizationModel, SubOrgani
 
 
 async def create_sub_organization(
-        database: AsyncIOMotorDatabase,
-        data: CreateSubOrganizationModel) -> SubOrganization | None:
-    res = await database.orgs.find_one({'_id': data.organization_id})
+    database: AsyncIOMotorDatabase, data: CreateSubOrganizationModel
+) -> SubOrganization | None:
+    res = await database.orgs.find_one({"_id": data.organization_id})
     if res is None:
         raise OrganizationNotFound
 
-    sub_organization = SubOrganization(title=data.title,
-                                       description=data.description,
-                                       organization_id=PyObjectId(data.organization_id))
+    sub_organization = SubOrganization(
+        name=data.name,
+        description=data.description,
+        organization_id=PyObjectId(data.organization_id),
+    )
 
     await database.suborgs.insert_one(jsonable_encoder(sub_organization))
     return sub_organization

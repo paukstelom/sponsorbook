@@ -6,4 +6,3 @@ class Contact(BaseModel):
     phone: str = Field()
     email: str = Field()
     details: str = Field(default="")
-

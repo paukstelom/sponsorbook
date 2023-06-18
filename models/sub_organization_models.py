@@ -8,7 +8,7 @@ from models.py_object_id import PyObjectId
 
 class SubOrganization(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
-    title: str = Field()
+    name: str = Field()
     description: str = Field()
     is_archived: bool = Field(default=False)
     organization_id: PyObjectId = Field()
@@ -28,7 +28,7 @@ class SubOrganization(BaseModel):
 
 
 class CreateSubOrganizationModel(BaseModel):
-    title: str = Field()
+    name: str = Field()
     description: str = Field()
     organization_id: str = Field()
 

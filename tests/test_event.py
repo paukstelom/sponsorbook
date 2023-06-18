@@ -4,26 +4,22 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from models.errors import EventNotFound
 from models.event_models import CreateEventModel
 from models.py_object_id import PyObjectId
+from tests.defaults import default_event, sponsorbook_database
 from use_cases.event_cases.create_event import create_event
 from use_cases.event_cases.delete_event import delete_event
 from use_cases.event_cases.get_all_events import get_events
 from use_cases.event_cases.get_event import get_event
 
-client = AsyncIOMotorClient()
-sponsorbook_database = client['sponsorbook']
-
 
 async def test_create_event():
-    model = CreateEventModel(title="hello", description="world")
-    result = await create_event(sponsorbook_database, model)
+    result = await create_event(sponsorbook_database, default_event)
 
     sponsor_id = result.id
     assert sponsor_id is not None
 
 
 async def test_get_event():
-    model = CreateEventModel(title="hello", description="world")
-    await create_event(sponsorbook_database, model)
+    await create_event(sponsorbook_database, default_event)
     events_list = [item async for item in get_events(sponsorbook_database)]
 
     assert len(events_list) > 0
@@ -36,8 +32,7 @@ async def test_delete_non_existent_event():
 
 
 async def test_delete_event():
-    model = CreateEventModel(title="hello", description="world")
-    result = await create_event(sponsorbook_database, model)
+    result = await create_event(sponsorbook_database, default_event)
 
     event_id = result.id
     resp = await delete_event(sponsorbook_database, str(event_id))

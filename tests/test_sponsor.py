@@ -3,19 +3,16 @@ from motor.motor_asyncio import AsyncIOMotorClient
 
 from models.errors import SponsorNotFound
 from models.py_object_id import PyObjectId
-from models.sponsor_models import CreateSponsorModel
+from models.sponsor_models import CreateSponsorModel, Rating
+from tests.defaults import default_sponsor, sponsorbook_database
 from use_cases.sponsor_cases.create_sponsor import create_sponsor
 from use_cases.sponsor_cases.delete_sponsor import delete_sponsor
 from use_cases.sponsor_cases.get_all_sponsors import get_sponsors
 from use_cases.sponsor_cases.get_sponsor import get_sponsor
 
-client = AsyncIOMotorClient()
-sponsorbook_database = client['sponsorbook']
-
 
 async def default_create():
-    model = CreateSponsorModel(name="hello", category="food", contacts=[])
-    return await create_sponsor(sponsorbook_database, model)
+    return await create_sponsor(sponsorbook_database, default_sponsor)
 
 
 async def test_create_sponsor():
