@@ -8,12 +8,10 @@ from models.py_object_id import PyObjectId
 
 class User(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
-    name: str = Field()
-    surname: str = Field()
     email: str = Field()
+    type: str = Field()
     is_archived: bool = Field(default=False)
-    # password: str = Field()
-    sub_organization_id: PyObjectId = Field()
+    password: str = Field()
     creation_date: datetime = Field(default_factory=datetime.now)
 
     class Config:
@@ -30,10 +28,9 @@ class User(BaseModel):
 
 
 class CreateUserModel(BaseModel):
-    name: str = Field()
-    surname: str = Field()
     email: str = Field()
-    sub_organization_id: str = Field()
+    type: str = Field()
+    password: str = Field()
 
     class Config:
         arbitrary_types_allowed = True

@@ -8,8 +8,7 @@ from models.py_object_id import PyObjectId
 
 class Organization(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
-    title: str = Field()
-    description: str = Field()
+    name: str = Field()
     is_archived: bool = Field(default=False)
     creation_date: datetime = Field(default_factory=datetime.now)
 
@@ -27,8 +26,7 @@ class Organization(BaseModel):
 
 
 class CreateOrganizationModel(BaseModel):
-    title: str = Field()
-    description: str = Field()
+    name: str = Field()
 
     class Config:
         arbitrary_types_allowed = True

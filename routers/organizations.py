@@ -4,21 +4,10 @@ from fastapi import APIRouter, Body
 from motor.motor_asyncio import AsyncIOMotorClient
 
 from models.organization_models import Organization, CreateOrganizationModel
-from models.sub_organization_models import SubOrganization, CreateSubOrganizationModel
 from use_cases.organization_cases.create_organization import create_organization
 from use_cases.organization_cases.delete_organization import delete_organization
 from use_cases.organization_cases.get_all_organizations import get_all_organizations
 from use_cases.organization_cases.get_organization import get_organization
-from use_cases.sub_organization_cases.create_sub_organization import (
-    create_sub_organization,
-)
-from use_cases.sub_organization_cases.delete_sub_organization import (
-    delete_sub_organization,
-)
-from use_cases.sub_organization_cases.get_all_sub_organizations import (
-    get_sub_organization,
-)
-from use_cases.sub_organization_cases.get_sub_organizations import get_sub_organizations
 
 router = APIRouter(prefix="/organizations")
 
