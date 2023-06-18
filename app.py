@@ -5,6 +5,7 @@ from fastapi import FastAPI, Body, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer
 from motor.motor_asyncio import AsyncIOMotorClient
+from starlette.responses import JSONResponse, Response
 
 from models.authentication_models import Credentials
 from models.errors import InvalidCredentials
@@ -35,11 +36,13 @@ app.include_router(sub_organizations.router)
 app.include_router(organizations.router)
 
 
-@app.post("/login", response_description="Login", response_model=str)
+@app.post("/login", response_description="Login")
 async def login_endpoint(body: Credentials = Body(...)):
     try:
-        token = authenticate_user(db, body, PasswordHasher())
-        return token
+        token = await authenticate_user(db, body, PasswordHasher())
+        response = Response()
+        response.set_cookie(key="session", value=token)
+        return response
     except InvalidCredentials:
         raise HTTPException(status_code=403, detail="Bad credentials")
 
