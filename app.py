@@ -41,7 +41,7 @@ async def login_endpoint(body: Credentials = Body(...)):
     try:
         token = await authenticate_user(db, body, PasswordHasher())
         response = Response()
-        response.set_cookie(key="session", value=token)
+        response.set_cookie(key="session", value=token, samesite="none", secure=True)
         return response
     except InvalidCredentials:
         raise HTTPException(status_code=403, detail="Bad credentials")
