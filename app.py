@@ -43,6 +43,6 @@ async def login_endpoint(body: Credentials = Body(...)):
         raise HTTPException(status_code=403, detail="Bad credentials")
 
 
-@app.get("/items/")
+@app.get("/items")
 async def read_items(token: Annotated[str, Depends(oauth2_scheme)]):
     return {"token": token}

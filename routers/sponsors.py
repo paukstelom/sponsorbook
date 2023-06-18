@@ -15,7 +15,7 @@ client = AsyncIOMotorClient()
 db = client["sponsorbook"]
 
 
-@router.get("/", response_description="Get sponsors", response_model=List[Sponsor])
+@router.get("", response_description="Get sponsors", response_model=List[Sponsor])
 async def get_sponsors_endpoint():
     return [item async for item in get_sponsors(database=db)]
 
@@ -32,7 +32,7 @@ async def delete_sponsor_endpoint(sponsor_id: str):
     await delete_sponsor(sponsor_id=sponsor_id, database=db)
 
 
-@router.post("/", response_description="Create sponsor", response_model="")
+@router.post("", response_description="Create sponsor", response_model="")
 async def create_sponsor_endpoint(body: CreateSponsorModel = Body()):
     sponsor = await create_sponsor(database=db, data=body)
     return sponsor

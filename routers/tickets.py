@@ -16,7 +16,7 @@ client = AsyncIOMotorClient()
 db = client["sponsorbook"]
 
 
-@router.get("/", response_description="Create a ticket", response_model=Ticket)
+@router.get("", response_description="Create a ticket", response_model=Ticket)
 async def create_ticket_endpoint(body: CreateTicketModel = Body(...)):
     try:
         ticket = await create_ticket(db, body)
@@ -37,7 +37,7 @@ async def get_ticket_endpoint(ticket_id: str):
     return ticket
 
 
-@router.get("/", response_description="Get all tickets", response_model=List[Ticket])
+@router.get("", response_description="Get all tickets", response_model=List[Ticket])
 async def get_tickets_endpoint():
     return [item async for item in get_tickets(db)]
 

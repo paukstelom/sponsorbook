@@ -16,7 +16,7 @@ client = AsyncIOMotorClient()
 db = client["sponsorbook"]
 
 
-@router.post("/", response_description="Create an event", response_model=Event)
+@router.post("", response_description="Create an event", response_model=Event)
 async def create_event_endpoint(body: CreateEventModel = Body(...)):
     try:
         ticket = await create_event(db, body)
@@ -37,7 +37,7 @@ async def get_event_endpoint(event_id: str):
     return ticket
 
 
-@router.get("/", response_description="Get all events", response_model=List[Event])
+@router.get("", response_description="Get all events", response_model=List[Event])
 async def get_events_endpoint():
     return [item async for item in get_events(db)]
 

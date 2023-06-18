@@ -27,7 +27,7 @@ db = client["sponsorbook"]
 
 
 @router.get(
-    "/", response_description="Get organization", response_model=List[Organization]
+    "", response_description="Get organization", response_model=List[Organization]
 )
 async def get_organizations_endpoint():
     return [item async for item in get_all_organizations(database=db)]
@@ -48,7 +48,7 @@ async def delete_organization_endpoint(organization_id: str):
 
 
 @router.post(
-    "/", response_description="Create organization", response_model=Organization
+    "", response_description="Create organization", response_model=Organization
 )
 async def create_organization_endpoint(body: CreateOrganizationModel = Body()):
     organization = await create_organization(database=db, data=body)
