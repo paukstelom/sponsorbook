@@ -1,7 +1,23 @@
+from typing import Optional
+
+from argon2 import PasswordHasher
+from argon2.exceptions import VerifyMismatchError
+from motor.motor_asyncio import AsyncIOMotorDatabase
+
+from models.authentication_models import Credentials
 from models.errors import InvalidCredentials
 
 
-def authenticate_user(credentials) -> str:
-    if credentials.email == "very" and credentials.password == "nice":
-        return "token"
-    raise InvalidCredentials
+def authenticate_user(
+    db: AsyncIOMotorDatabase, credentials: Credentials, hasher: PasswordHasher
+) -> Optional[str]:
+    user = await db.users.find_one({"email": credentials.email})
+    if user is None:
+        raise InvalidCredentials()
+
+    try:
+        hasher.verify(user.password, credentials.password)
+    except VerifyMismatchError:
+        raise InvalidCredentials()
+
+    return "token"

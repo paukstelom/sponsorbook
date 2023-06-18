@@ -48,6 +48,6 @@ async def delete_event_endpoint(id: str):
     return await delete_event(db, id)
 
 
-@router.post("/{id}/close", response_description='Close an event')
+@router.post("/{id}/close", response_description="Close an event")
 async def close_event_endpoint(id: str):
     return await close_event(db, id)

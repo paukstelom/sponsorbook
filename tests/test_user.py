@@ -15,6 +15,7 @@ from use_cases.user_cases.get_conversations import get_all_users
 
 hasher = PasswordHasher()
 
+
 async def default_create():
     model = default_user
     return await create_user(sponsorbook_database, model, hasher)

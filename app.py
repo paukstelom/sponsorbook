@@ -1,5 +1,6 @@
 from typing import Annotated
 
+from argon2 import PasswordHasher
 from fastapi import FastAPI, Body, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer
@@ -37,7 +38,7 @@ app.include_router(organizations.router)
 @app.post("/login", response_description="Login", response_model=str)
 async def login_endpoint(body: Credentials = Body(...)):
     try:
-        token = authenticate_user(body)
+        token = authenticate_user(db, body, PasswordHasher())
         return token
     except InvalidCredentials:
         raise HTTPException(status_code=403, detail="Bad credentials")

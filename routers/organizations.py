@@ -39,8 +39,11 @@ async def delete_organization_endpoint(organization_id: str):
     await delete_organization(organization_id=organization_id, database=db)
 
 
-@router.post(
-    "", response_description="Create organization")
+@router.post("", response_description="Create organization")
 async def create_organization_endpoint(body: CreateOrganizationModel = Body()):
     await create_organization(database=db, data=body)
-    await create_user(db, CreateUserModel(email=body.user_email, type='president', password='qwerty'), PasswordHasher())
+    await create_user(
+        db,
+        CreateUserModel(email=body.user_email, type="president", password="qwerty"),
+        PasswordHasher(),
+    )
