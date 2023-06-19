@@ -9,7 +9,7 @@ from starlette.responses import Response
 
 from models.authentication_models import Credentials
 from models.errors import InvalidCredentials
-from routers import sponsors, tickets, events, sub_organizations, organizations
+from routers import sponsors, tickets, events, sub_organizations, organizations, categories
 from use_cases.authentication.login import authenticate_user
 
 app = FastAPI()
@@ -34,6 +34,7 @@ app.include_router(tickets.router)
 app.include_router(events.router)
 app.include_router(sub_organizations.router)
 app.include_router(organizations.router)
+app.include_router(categories.router)
 
 
 @app.post("/login", response_description="Login")
