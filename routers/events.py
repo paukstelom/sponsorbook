@@ -10,6 +10,7 @@ from use_cases.event_cases.create_event import create_event
 from use_cases.event_cases.delete_event import delete_event
 from use_cases.event_cases.get_all_events import get_events
 from use_cases.event_cases.get_event import get_event
+from use_cases.ticket_cases.get_tickets_for_event import get_event_tickets
 
 router = APIRouter(prefix="/events")
 
@@ -51,3 +52,8 @@ async def delete_event_endpoint(id: str):
 @router.post("/{id}/close", response_description="Close an event")
 async def close_event_endpoint(id: str):
     return await close_event(db, id)
+
+
+@router.get("/{id}/tickets", response_description='Get all tickets related to the event')
+async def get_tickets_for_event(id: str):
+    return [item async for item in get_event_tickets(database=db, event_id=id)]
