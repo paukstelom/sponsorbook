@@ -39,7 +39,7 @@ async def create_sponsor_endpoint(body: CreateSponsorModel = Body()):
     return sponsor
 
 
-@router.post('/{sponsor_id}', response_description='Edit sponsor', response_model=Sponsor)
+@router.put('/{sponsor_id}', response_description='Edit sponsor', response_model=Sponsor)
 async def update_sponsor_endpoint(sponsor_id: str, body: EditSponsorModel = Body()):
     await update_sponsor(database=db, sponsor_id=sponsor_id, changes=body)
     return await get_sponsor(sponsor_id=sponsor_id, database=db)
