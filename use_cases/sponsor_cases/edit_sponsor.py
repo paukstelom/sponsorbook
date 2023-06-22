@@ -8,7 +8,7 @@ from models.sponsor_models import EditSponsorModel, Sponsor
 async def update_sponsor(database: AsyncIOMotorDatabase, sponsor_id: str, changes: EditSponsorModel) -> None:
     sponsor = await database.sponsors.find_one({"_id": sponsor_id})
 
-    if sponsor.matched_count != 1:
+    if sponsor is None:
         raise SponsorNotFound()
 
     sponsor = Sponsor.parse_obj(sponsor)
