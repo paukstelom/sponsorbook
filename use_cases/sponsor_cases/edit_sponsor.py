@@ -34,5 +34,5 @@ async def update_sponsor(database: AsyncIOMotorDatabase, sponsor_id: str, change
     if changes.website is not None:
         sponsor.website = changes.website
 
-    res = await database.sponsors.replace_one(
-        {"_id": sponsor.id}, jsonable_encoder(sponsor))
+    await database.sponsors.replace_one(
+        {"_id": sponsor_id}, jsonable_encoder(sponsor))
