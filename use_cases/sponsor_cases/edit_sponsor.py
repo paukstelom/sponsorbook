@@ -1,3 +1,4 @@
+from fastapi.encoders import jsonable_encoder
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from models.errors import SponsorNotFound
@@ -30,7 +31,7 @@ async def update_sponsor(database: AsyncIOMotorDatabase, sponsor_id: str, change
         sponsor.website = changes.website
 
     res = await database.sponsors.replace_one(
-        {"_id": sponsor.id}, sponsor)
+        {"_id": sponsor.id}, dict(sponsor))
 
     if res.matched_count != 1:
         raise SponsorNotFound()
