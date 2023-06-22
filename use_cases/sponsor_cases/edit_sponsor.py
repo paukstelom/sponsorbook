@@ -31,7 +31,7 @@ async def update_sponsor(database: AsyncIOMotorDatabase, sponsor_id: str, change
         sponsor.website = changes.website
 
     res = await database.sponsors.replace_one(
-        {"_id": sponsor.id}, dict(sponsor))
+        {"_id": sponsor.id}, jsonable_encoder(sponsor))
 
     if res.matched_count != 1:
         raise SponsorNotFound()
