@@ -7,6 +7,10 @@ from models.sponsor_models import EditSponsorModel, Sponsor
 
 async def update_sponsor(database: AsyncIOMotorDatabase, sponsor_id: str, changes: EditSponsorModel) -> None:
     sponsor = await database.sponsors.find_one({"_id": sponsor_id})
+
+    if sponsor.matched_count != 1:
+        raise SponsorNotFound()
+
     sponsor = Sponsor.parse_obj(sponsor)
 
     if changes.description is not None:
@@ -32,6 +36,3 @@ async def update_sponsor(database: AsyncIOMotorDatabase, sponsor_id: str, change
 
     res = await database.sponsors.replace_one(
         {"_id": sponsor.id}, jsonable_encoder(sponsor))
-
-    if res.matched_count != 1:
-        raise SponsorNotFound()
