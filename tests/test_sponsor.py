@@ -44,4 +44,4 @@ async def test_delete_sponsor():
 
     deleted_sponsor = await get_sponsor(str(sponsor_id), sponsorbook_database)
 
-    assert deleted_sponsor.is_archived
+    assert deleted_sponsor is None

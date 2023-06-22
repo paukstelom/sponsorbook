@@ -8,4 +8,4 @@ async def delete_sponsor(database: AsyncIOMotorDatabase, sponsor_id: str) -> Non
         {"_id": sponsor_id}, {"$set": {"is_archived": True}}
     )
     if res.matched_count != 1:
-        raise SponsorNotFound
+        raise SponsorNotFound()

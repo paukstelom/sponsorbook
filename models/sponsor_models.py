@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List
+from typing import List, Optional
 
 from bson import ObjectId
 from pydantic import BaseModel, Field
@@ -52,3 +52,15 @@ class CreateSponsorModel(BaseModel):
         arbitrary_types_allowed = True
         allow_population_by_field_name = True
         json_encoders = {ObjectId: str}
+
+
+class EditSponsorModel(BaseModel):
+    company_number: Optional[str] = Field(alias="companyNumber")
+    name: Optional[str] = Field()
+    contacts: Optional[List[Contact]] = Field()
+    website: Optional[str] = Field()
+    category: Optional[str] = Field()
+    rating: Optional[Rating] = Field()
+    description: Optional[str] = Field()
+    is_archived: Optional[bool] = Field()
+    status: Optional[str] = Field()

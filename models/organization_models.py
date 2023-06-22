@@ -4,12 +4,12 @@ from bson import ObjectId
 from pydantic import BaseModel, Field
 
 from models.py_object_id import PyObjectId
+from models.user_models import User, CreateUserModel
 
 
 class Organization(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
-    title: str = Field()
-    description: str = Field()
+    name: str = Field()
     is_archived: bool = Field(default=False)
     creation_date: datetime = Field(default_factory=datetime.now)
 
@@ -27,8 +27,8 @@ class Organization(BaseModel):
 
 
 class CreateOrganizationModel(BaseModel):
-    title: str = Field()
-    description: str = Field()
+    name: str = Field()
+    user_email: str = Field()
 
     class Config:
         arbitrary_types_allowed = True

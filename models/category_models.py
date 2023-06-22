@@ -6,12 +6,11 @@ from pydantic import BaseModel, Field
 from models.py_object_id import PyObjectId
 
 
-class User(BaseModel):
+class Category(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
-    email: str = Field()
-    type: str = Field()
+    name: str = Field()
+    info: str = Field()
     is_archived: bool = Field(default=False)
-    password: str = Field()
     creation_date: datetime = Field(default_factory=datetime.now)
 
     class Config:
@@ -27,11 +26,11 @@ class User(BaseModel):
         }
 
 
-class CreateUserModel(BaseModel):
-    email: str = Field()
-    type: str = Field()
-    password: str = Field()
+class CreateCategoryModel(BaseModel):
+    name: str = Field()
+    info: str = Field()
 
     class Config:
         arbitrary_types_allowed = True
+        allow_population_by_field_name = True
         json_encoders = {ObjectId: str}
