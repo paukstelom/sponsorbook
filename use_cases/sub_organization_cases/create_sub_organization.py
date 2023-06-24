@@ -3,12 +3,15 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from models.errors import OrganizationNotFound
 from models.py_object_id import PyObjectId
+from models.session import Session
 from models.sub_organization_models import CreateSubOrganizationModel, SubOrganization
+from models.user_models import User
 
 
 async def create_sub_organization(
-    database: AsyncIOMotorDatabase, data: CreateSubOrganizationModel
+    database: AsyncIOMotorDatabase, data: CreateSubOrganizationModel, user: User
 ) -> SubOrganization | None:
+
     res = await database.orgs.find_one({"_id": data.organization_id})
     if res is None:
         raise OrganizationNotFound

@@ -1,9 +1,10 @@
 from typing import List
 
 from argon2 import PasswordHasher
-from fastapi import APIRouter, Body
+from fastapi import APIRouter, Body, HTTPException
 from motor.motor_asyncio import AsyncIOMotorClient
 
+from models.errors import OrganizationNotFound
 from models.organization_models import Organization, CreateOrganizationModel
 from models.user_models import CreateUserModel
 from use_cases.organization_cases.create_organization import create_organization
@@ -41,9 +42,12 @@ async def delete_organization_endpoint(organization_id: str):
 
 @router.post("", response_description="Create organization")
 async def create_organization_endpoint(body: CreateOrganizationModel = Body()):
-    await create_organization(database=db, data=body)
-    await create_user(
-        db,
-        CreateUserModel(email=body.user_email, type="president", password="qwerty"),
-        PasswordHasher(),
-    )
+    organization = await create_organization(database=db, data=body)
+    try:
+        await create_user(
+            db,
+            CreateUserModel(email=body.user_email, type="president", organization_id=str(organization.id), password="qwerty"),
+            PasswordHasher(),
+        )
+    except OrganizationNotFound:
+        raise HTTPException(detail="Organization not found", status_code=400)

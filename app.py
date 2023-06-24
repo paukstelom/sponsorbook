@@ -45,7 +45,7 @@ async def login_endpoint(body: Credentials = Body(...)):
         raise HTTPException(status_code=403, detail="Bad credentials")
 
     response = Response()
-    response.set_cookie(key="session", value=token, samesite="none", secure=True, max_age=999999999999999)
+    response.set_cookie(key="session", value=token, samesite="none", secure=True, max_age=64 * 64)
     return response
 
 
