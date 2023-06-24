@@ -14,7 +14,7 @@ async def create_sponsor(
         website=data.website,
         contacts=data.contacts,
         description=data.description,
-        category=data.category,
+        categories=data.categories,
     )
 
     await database.sponsors.insert_one(jsonable_encoder(sponsor))

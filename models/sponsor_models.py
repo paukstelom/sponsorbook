@@ -9,7 +9,7 @@ from models.py_object_id import PyObjectId
 
 
 class Rating(BaseModel):
-    score: str = Field()
+    score: float = Field()
     info: str = Field()
 
 
@@ -19,7 +19,7 @@ class Sponsor(BaseModel):
     name: str = Field()
     contacts: List[Contact] = Field()
     website: str = Field()
-    category: str = Field()
+    categories: List[str] = Field()
     rating: Rating = Field()
     description: str = Field()
     is_archived: bool = Field(default=False)
@@ -44,7 +44,7 @@ class CreateSponsorModel(BaseModel):
     name: str = Field()
     description: str = Field()
     contacts: List[Contact] = Field()
-    category: str = Field()
+    categories: List[str] = Field()
     rating: Rating = Field()
     website: str = Field()
 
@@ -59,7 +59,7 @@ class EditSponsorModel(BaseModel):
     name: Optional[str] = Field()
     contacts: Optional[List[Contact]] = Field()
     website: Optional[str] = Field()
-    category: Optional[str] = Field()
+    categories: Optional[List[str]] = Field()
     rating: Optional[Rating] = Field()
     description: Optional[str] = Field()
     is_archived: Optional[bool] = Field()
