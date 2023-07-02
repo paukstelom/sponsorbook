@@ -14,7 +14,7 @@ router = APIRouter(prefix="/organizations")
 
 @router.get("", response_description="Get organization")
 async def get_all_organizations(
-        database: DatabaseDep, page_size: int = 100
+    database: DatabaseDep, page_size: int = 100
 ) -> List[Organization]:
     return await database.orgs.find().to_list(page_size)
 
@@ -43,7 +43,7 @@ async def delete_organization(orgs: OrgsDep, organization_id: str) -> None:
 
 @router.post("", response_description="Create organization")
 async def create_organization(
-        orgs: OrgsDep, db: DatabaseDep, body: CreateOrganizationModel = Body()
+    orgs: OrgsDep, db: DatabaseDep, body: CreateOrganizationModel = Body()
 ):
     organization = Organization(name=body.name)
 

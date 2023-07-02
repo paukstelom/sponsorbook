@@ -41,9 +41,7 @@ async def get_events(events: EventsDep, page_size: int = 100) -> List[Event]:
 
 @router.delete("/{event_id}", response_description="Archive an event")
 async def delete_event(events: EventsDep, event_id: str) -> None:
-    res = await events.update_one(
-        {"_id": event_id}, {"$set": {"is_archived": True}}
-    )
+    res = await events.update_one({"_id": event_id}, {"$set": {"is_archived": True}})
     if res.matched_count != 1:
         raise HTTPException(status_code=403, detail="Session missing")
 
@@ -59,6 +57,6 @@ async def close_event(events: EventsDep, id: str) -> None:
     "/{event_id}/tickets", response_description="Get all tickets related to the event"
 )
 async def get_event_tickets(
-        tickets: TicketsDep, event_id: str, page_size: int = 100
+    tickets: TicketsDep, event_id: str, page_size: int = 100
 ) -> List[Ticket]:
     return await tickets.find().to_list(page_size)

@@ -16,7 +16,7 @@ router = APIRouter(prefix="/sub_organizations")
     response_description="Get sub_organization",
 )
 async def get_sub_organizations(
-        suborgs: SubOrgsDep, page_size: int = 100
+    suborgs: SubOrgsDep, page_size: int = 100
 ) -> List[SubOrganization]:
     return await suborgs.find().to_list(page_size)
 
@@ -27,7 +27,7 @@ async def get_sub_organizations(
     response_model=SubOrganization,
 )
 async def get_sub_organization(
-        sub_organization_id: str, suborgs: SubOrgsDep
+    sub_organization_id: str, suborgs: SubOrgsDep
 ) -> SubOrganization:
     sub_organization = await suborgs.find_one({"_id": sub_organization_id})
 
@@ -39,7 +39,7 @@ async def get_sub_organization(
 
 @router.delete("/{sub_organization_id}", response_description="Delete sub_organization")
 async def delete_sub_organization(
-        suborgs: SubOrgsDep, sub_organization_id: str
+    suborgs: SubOrgsDep, sub_organization_id: str
 ) -> None:
     res = await suborgs.update_one(
         {"_id": sub_organization_id}, {"$set": {"is_archived": True}}
@@ -50,10 +50,10 @@ async def delete_sub_organization(
 
 @router.post("", response_description="Create sub_organization", response_model="")
 async def create_sub_organization(
-        suborgs: SubOrgsDep,
-        orgs: OrgsDep,
-        user: GetUserFromSessionDep,
-        data: CreateSubOrganizationModel = Body(),
+    suborgs: SubOrgsDep,
+    orgs: OrgsDep,
+    user: GetUserFromSessionDep,
+    data: CreateSubOrganizationModel = Body(),
 ) -> SubOrganization | None:
     res = await orgs.find_one({"_id": user.organization_id})
     if res is None:

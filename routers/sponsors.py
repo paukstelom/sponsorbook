@@ -18,9 +18,7 @@ async def get_sponsors(sponsors: SponsorsDep, page_size: int = 100) -> List[Spon
     "/{sponsor_id}", response_description="Get one sponsor", response_model=Sponsor
 )
 async def get_sponsor(sponsor_id: str, sponsors: SponsorsDep) -> Optional[Sponsor]:
-    sponsor = await sponsors.find_one(
-        {"_id": sponsor_id, "is_archived": False}
-    )
+    sponsor = await sponsors.find_one({"_id": sponsor_id, "is_archived": False})
 
     if sponsor is None:
         raise HTTPException(status_code=404, detail="Sponsor not found!")
@@ -56,7 +54,7 @@ async def create_sponsor(sponsors: SponsorsDep, data: CreateSponsorModel) -> Spo
 
 @router.put("/{sponsor_id}", response_description="Edit sponsor")
 async def update_sponsor(
-        sponsors: SponsorsDep, sponsor_id: str, changes: EditSponsorModel
+    sponsors: SponsorsDep, sponsor_id: str, changes: EditSponsorModel
 ) -> None:
     sponsor = await sponsors.find_one({"_id": sponsor_id})
 
