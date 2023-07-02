@@ -8,6 +8,7 @@ from models.py_object_id import PyObjectId
 
 class User(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
+    organization_id: PyObjectId = Field()
     email: str = Field()
     type: str = Field()
     is_archived: bool = Field(default=False)
@@ -30,6 +31,7 @@ class User(BaseModel):
 class CreateUserModel(BaseModel):
     email: str = Field()
     type: str = Field()
+    organization_id: str = Field()
     password: str = Field()
 
     class Config:

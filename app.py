@@ -1,33 +1,30 @@
-from typing import Annotated
+from datetime import datetime
 
-from argon2 import PasswordHasher
-from fastapi import FastAPI, Body, HTTPException, Depends
-from fastapi.middleware.cors import CORSMiddleware
+import jwt
+from argon2.exceptions import VerifyMismatchError
+from fastapi import FastAPI, Body, HTTPException
 from fastapi.security import OAuth2PasswordBearer
-from motor.motor_asyncio import AsyncIOMotorClient
 from starlette.responses import Response
 
+from dependencies import (
+    GetSessionDep,
+    GetUserFromSessionDep,
+    GetPasswordHasherDep,
+)
+from storage import DatabaseDep
 from models.authentication_models import Credentials
-from models.errors import InvalidCredentials
-from routers import sponsors, tickets, events, sub_organizations, organizations, categories
-from use_cases.authentication.login import authenticate_user
+from models.session import SessionWithUser
+from routers import (
+    sponsors,
+    tickets,
+    events,
+    sub_organizations,
+    organizations,
+    categories,
+)
 
 app = FastAPI()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
-origins = [
-    "http://localhost:3000",
-]
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-client = AsyncIOMotorClient()
-db = client["sponsorbook"]
 
 app.include_router(sponsors.router)
 app.include_router(tickets.router)
@@ -36,19 +33,34 @@ app.include_router(sub_organizations.router)
 app.include_router(organizations.router)
 app.include_router(categories.router)
 
+key = "secret_key"
+
 
 @app.post("/login", response_description="Login")
-async def login_endpoint(body: Credentials = Body(...)):
-    try:
-        token = await authenticate_user(db, body, PasswordHasher())
-    except InvalidCredentials:
+async def login_endpoint(
+    db: DatabaseDep,
+    hasher: GetPasswordHasherDep,
+    credentials: Credentials = Body(...),
+):
+    user = await db.users.find_one({"email": credentials.email})
+    if user is None:
         raise HTTPException(status_code=403, detail="Bad credentials")
 
+    try:
+        hasher.verify(user["password"], credentials.password)
+    except VerifyMismatchError:
+        raise HTTPException(status_code=403, detail="Bad credentials")
+
+    token = jwt.encode(
+        {"user_id": user["_id"], "logged_in_at": str(datetime.now())},
+        key,
+        algorithm="HS256",
+    )
     response = Response()
-    response.set_cookie(key="session", value=token, samesite="none", secure=True, max_age=999999999999999)
+    response.set_cookie(key="session", value=token, max_age=64 * 64)
     return response
 
 
-@app.get("/items")
-async def read_items(token: Annotated[str, Depends(oauth2_scheme)]):
-    return {"token": token}
+@app.get("/session")
+async def get_session_endpoint(session: GetSessionDep, user: GetUserFromSessionDep):
+    return SessionWithUser(session=session, user=user)
