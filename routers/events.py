@@ -1,59 +1,64 @@
 from typing import List, Optional
 
-from fastapi import APIRouter, Body, HTTPException
-from motor.motor_asyncio import AsyncIOMotorClient
+from fastapi import APIRouter, HTTPException
+from fastapi.encoders import jsonable_encoder
 
-from models.errors import SponsorNotFound, EventNotFound
+from dependencies import GetDatabaseDep
 from models.event_models import CreateEventModel, Event
-from use_cases.event_cases.close_event import close_event
-from use_cases.event_cases.create_event import create_event
-from use_cases.event_cases.delete_event import delete_event
-from use_cases.event_cases.get_all_events import get_events
-from use_cases.event_cases.get_event import get_event
-from use_cases.ticket_cases.get_tickets_for_event import get_event_tickets
+from models.ticket_models import Ticket
 
 router = APIRouter(prefix="/events")
 
-client = AsyncIOMotorClient()
-db = client["sponsorbook"]
-
 
 @router.post("", response_description="Create an event", response_model=Event)
-async def create_event_endpoint(body: CreateEventModel = Body(...)):
-    try:
-        ticket = await create_event(db, body)
-    except SponsorNotFound:
-        raise HTTPException(status_code=400, detail="Sponsor not found")
-    except EventNotFound:
-        raise HTTPException(status_code=400, detail="Event not found")
-    return ticket
+async def create_event(database: GetDatabaseDep, data: CreateEventModel) -> Event:
+    event = Event(
+        name=data.name,
+        description=data.description,
+        sub_organization_ids=data.sub_organization_ids,
+    )
+
+    await database.events.insert_one(jsonable_encoder(event))
+    return event
 
 
 @router.get(
     "/{event_id}", response_description="Get an event", response_model=Optional[Event]
 )
-async def get_event_endpoint(event_id: str):
-    ticket = await get_event(event_id, db)
-    if ticket is None:
-        raise HTTPException(status_code=404, detail="Ticket not found")
-    return ticket
+async def get_event(database: GetDatabaseDep, event_id: str):
+    event = await database.events.find_one({"_id": event_id})
+
+    if event is None:
+        raise HTTPException(status_code=404, detail="Event not found")
+
+    return event
 
 
-@router.get("", response_description="Get all events", response_model=List[Event])
-async def get_events_endpoint():
-    return [item async for item in get_events(db)]
+@router.get("", response_description="Get all events")
+async def get_events(database: GetDatabaseDep, page_size: int = 100) -> List[Event]:
+    return await database.events.find({"is_archived": False}).to_list(page_size)
 
 
 @router.delete("/{id}", response_description="Archive an event")
-async def delete_event_endpoint(id: str):
-    return await delete_event(db, id)
+async def delete_event(database: GetDatabaseDep, event_id: str) -> None:
+    res = await database.events.update_one(
+        {"_id": event_id}, {"$set": {"is_archived": True}}
+    )
+    if res.matched_count != 1:
+        raise HTTPException(status_code=403, detail="Session missing")
 
 
 @router.post("/{id}/close", response_description="Close an event")
-async def close_event_endpoint(id: str):
-    return await close_event(db, id)
+async def close_event(database: GetDatabaseDep, id: str) -> None:
+    res = await database.events.update_one({"_id": id}, {"$set": {"status": "Closed"}})
+    if res.matched_count != 1:
+        raise HTTPException(status_code=404, detail="Event not found!")
 
 
-@router.get("/{id}/tickets", response_description='Get all tickets related to the event')
-async def get_tickets_for_event(id: str):
-    return [item async for item in get_event_tickets(database=db, event_id=id)]
+@router.get(
+    "/{event_id}/tickets", response_description="Get all tickets related to the event"
+)
+async def get_event_tickets(
+    database: GetDatabaseDep, event_id: str, page_size: int = 100
+) -> List[Ticket]:
+    return await database.tickets.find().to_list(page_size)

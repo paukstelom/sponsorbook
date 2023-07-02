@@ -1,43 +1,51 @@
-from typing import List
+from typing import List, Optional
 
-from fastapi import APIRouter, Body
-from motor.motor_asyncio import AsyncIOMotorClient
+from fastapi import APIRouter, Body, HTTPException
+from fastapi.encoders import jsonable_encoder
 
+from dependencies import GetDatabaseDep
 from models.category_models import Category, CreateCategoryModel
-from models.sponsor_models import Sponsor, CreateSponsorModel
-from use_cases.category_cases.create_category import create_category
-from use_cases.category_cases.delete_category import delete_category
-from use_cases.category_cases.get_all_categories import get_all_categories
-from use_cases.category_cases.get_one_category import get_one_category
-from use_cases.sponsor_cases.create_sponsor import create_sponsor
-from use_cases.sponsor_cases.delete_sponsor import delete_sponsor
-from use_cases.sponsor_cases.get_all_sponsors import get_sponsors
-from use_cases.sponsor_cases.get_sponsor import get_sponsor
 
 router = APIRouter(prefix="/categories")
 
-client = AsyncIOMotorClient()
-db = client["sponsorbook"]
 
-
-@router.get("", response_description="Get categories", response_model=List[Category])
-async def get_all_categories_endpoint():
-    return [item async for item in get_all_categories(database=db)]
+@router.get("", response_description="Get categories")
+async def get_all_categories(
+    database: GetDatabaseDep, page_size: int = 100
+) -> List[Category]:
+    return await database['categories'].find({"is_archived": False}).to_list(length=page_size)
 
 
 @router.get(
     "/{category_id}", response_description="Get one category", response_model=Category
 )
-async def get_one_category_endpoint(category_id: str):
-    return await get_one_category(category_id=category_id, database=db)
+async def get_one_category(
+    category_id: str, database: GetDatabaseDep
+) -> Optional[Category]:
+    category = await database.categories.find_one(
+        {"_id": category_id, "is_archived": False}
+    )
+
+    if category is None:
+        raise HTTPException(status_code=404, detail="Category not found!")
+
+    return category
 
 
 @router.delete("/{category_id}", response_description="Delete category")
-async def delete_category_endpoint(category_id: str):
-    await delete_category(category_id=category_id, database=db)
+async def delete_category(database: GetDatabaseDep, category_id: str) -> None:
+    res = await database.categories.update_one(
+        {"_id": category_id}, {"$set": {"is_archived": True}}
+    )
+    if res.matched_count != 1:
+        raise HTTPException(status_code=404, detail="Category not found!")
 
 
 @router.post("", response_description="Create category", response_model="")
-async def create_category_endpoint(body: CreateCategoryModel = Body()):
-    category = await create_category(database=db, data=body)
+async def create_category(
+    database: GetDatabaseDep, data: CreateCategoryModel = Body()
+) -> Category:
+    category = Category(name=data.name, info=data.info)
+
+    await database.categories.insert_one(jsonable_encoder(category))
     return category

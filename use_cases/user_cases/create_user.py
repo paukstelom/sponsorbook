@@ -18,7 +18,12 @@ async def create_user(
     organization = Organization.parse_obj(organization)
 
     hashed_password = hasher.hash(data.password)
-    user = User(email=data.email, type=data.type, password=hashed_password, organization_id=organization.id)
+    user = User(
+        email=data.email,
+        type=data.type,
+        password=hashed_password,
+        organization_id=organization.id,
+    )
 
     await database.users.insert_one(jsonable_encoder(user))
     return user

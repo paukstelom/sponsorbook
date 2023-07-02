@@ -30,7 +30,6 @@ class SubOrganization(BaseModel):
 class CreateSubOrganizationModel(BaseModel):
     name: str = Field()
     description: str = Field()
-    organization_id: str = Field()
 
     class Config:
         arbitrary_types_allowed = True

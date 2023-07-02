@@ -2,52 +2,65 @@ from typing import List
 
 from argon2 import PasswordHasher
 from fastapi import APIRouter, Body, HTTPException
-from motor.motor_asyncio import AsyncIOMotorClient
+from fastapi.encoders import jsonable_encoder
 
-from models.errors import OrganizationNotFound
+from dependencies import GetDatabaseDep
 from models.organization_models import Organization, CreateOrganizationModel
 from models.user_models import CreateUserModel
-from use_cases.organization_cases.create_organization import create_organization
-from use_cases.organization_cases.delete_organization import delete_organization
-from use_cases.organization_cases.get_all_organizations import get_all_organizations
-from use_cases.organization_cases.get_organization import get_organization
 from use_cases.user_cases.create_user import create_user
 
 router = APIRouter(prefix="/organizations")
 
-client = AsyncIOMotorClient()
-db = client["sponsorbook"]
 
-
-@router.get(
-    "", response_description="Get organization", response_model=List[Organization]
-)
-async def get_organizations_endpoint():
-    return [item async for item in get_all_organizations(database=db)]
+@router.get("", response_description="Get organization")
+async def get_all_organizations(
+    database: GetDatabaseDep, page_size: int = 100
+) -> List[Organization]:
+    return await database.orgs.find().to_list(page_size)
 
 
 @router.get(
     "/{organization_id}",
     response_description="Get one organization",
-    response_model=Organization,
 )
-async def get_one_organization_endpoint(organization_id: str):
-    return await get_organization(organization_id=organization_id, database=db)
+async def get_organization(
+    organization_id: str, database: GetDatabaseDep
+) -> Organization:
+    organization = await database.orgs.find_one({"_id": organization_id})
+
+    if organization is None:
+        raise HTTPException(status_code=404, detail="Organization not found!")
+
+    return organization
 
 
 @router.delete("/{organization_id}", response_description="Delete organization")
-async def delete_organization_endpoint(organization_id: str):
-    await delete_organization(organization_id=organization_id, database=db)
+async def delete_organization(database: GetDatabaseDep, organization_id: str) -> None:
+    res = await database.orgs.update_one(
+        {"_id": organization_id}, {"$set": {"is_archived": True}}
+    )
+    if res.matched_count != 1:
+        raise HTTPException(status_code=404, detail="Organization not found!")
 
 
 @router.post("", response_description="Create organization")
-async def create_organization_endpoint(body: CreateOrganizationModel = Body()):
-    organization = await create_organization(database=db, data=body)
-    try:
+async def create_organization(
+    database: GetDatabaseDep, body: CreateOrganizationModel = Body()
+):
+    organization = Organization(name=body.name)
+
+    with database.client.start_session():
+        result = await database.orgs.insert_one(jsonable_encoder(organization))
+        organization = await database.orgs.find_one({"_id": result.inserted_id})
+        organization = Organization.parse_obj(organization)
+
         await create_user(
-            db,
-            CreateUserModel(email=body.user_email, type="president", organization_id=str(organization.id), password="qwerty"),
+            database,
+            CreateUserModel(
+                email=body.user_email,
+                type="president",
+                organization_id=str(organization.id),
+                password="qwerty",
+            ),
             PasswordHasher(),
         )
-    except OrganizationNotFound:
-        raise HTTPException(detail="Organization not found", status_code=400)

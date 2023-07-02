@@ -1,14 +1,9 @@
 import pytest
-from motor.motor_asyncio import AsyncIOMotorClient
 
 from models.errors import EventNotFound
-from models.event_models import CreateEventModel
 from models.py_object_id import PyObjectId
+from routers.events import create_event, get_events, delete_event
 from tests.defaults import default_event, sponsorbook_database
-from use_cases.event_cases.create_event import create_event
-from use_cases.event_cases.delete_event import delete_event
-from use_cases.event_cases.get_all_events import get_events
-from use_cases.event_cases.get_event import get_event
 
 
 async def test_create_event():
@@ -20,14 +15,14 @@ async def test_create_event():
 
 async def test_get_event():
     await create_event(sponsorbook_database, default_event)
-    events_list = [item async for item in get_events(sponsorbook_database)]
+    events_list = await get_events(sponsorbook_database)
 
     assert len(events_list) > 0
 
 
 async def test_delete_non_existent_event():
     non_existent_id = PyObjectId()
-    with pytest.raises(EventNotFound):
+    with pytest.raises(HttpError):
         await delete_event(sponsorbook_database, str(non_existent_id))
 
 

@@ -15,7 +15,7 @@ from use_cases.sub_organization_cases.create_sub_organization import (
 from use_cases.sub_organization_cases.delete_sub_organization import (
     delete_sub_organization,
 )
-from use_cases.sub_organization_cases.get_all_sub_organizations import (
+from use_cases.sub_organization_cases.get_sub_organization import (
     get_sub_organization,
 )
 from use_cases.sub_organization_cases.get_sub_organizations import get_sub_organizations

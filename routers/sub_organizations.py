@@ -1,33 +1,23 @@
 from typing import List
 
-from fastapi import APIRouter, Body
-from motor.motor_asyncio import AsyncIOMotorClient
+from fastapi import APIRouter, Body, HTTPException
+from fastapi.encoders import jsonable_encoder
 
+from dependencies import GetUserFromSessionDep, GetDatabaseDep
+from models.py_object_id import PyObjectId
 from models.sub_organization_models import SubOrganization, CreateSubOrganizationModel
-from use_cases.sub_organization_cases.create_sub_organization import (
-    create_sub_organization,
-)
-from use_cases.sub_organization_cases.delete_sub_organization import (
-    delete_sub_organization,
-)
-from use_cases.sub_organization_cases.get_all_sub_organizations import (
-    get_sub_organization,
-)
-from use_cases.sub_organization_cases.get_sub_organizations import get_sub_organizations
 
 router = APIRouter(prefix="/sub_organizations")
-
-client = AsyncIOMotorClient()
-db = client["sponsorbook"]
 
 
 @router.get(
     "",
     response_description="Get sub_organization",
-    response_model=List[SubOrganization],
 )
-async def get_sub_organizations_endpoint():
-    return [item async for item in get_sub_organizations(database=db)]
+async def get_sub_organizations(
+    database: GetDatabaseDep, page_size: int = 100
+) -> List[SubOrganization]:
+    return await database.suborgs.find().to_list(page_size)
 
 
 @router.get(
@@ -35,18 +25,43 @@ async def get_sub_organizations_endpoint():
     response_description="Get one sub_organization",
     response_model=SubOrganization,
 )
-async def get_one_sub_organization_endpoint(sub_organization_id: str):
-    return await get_sub_organization(
-        sub_organization_id=sub_organization_id, database=db
-    )
+async def get_sub_organization(
+    sub_organization_id: str, database: GetDatabaseDep
+) -> SubOrganization:
+    sub_organization = await database.suborgs.find_one({"_id": sub_organization_id})
+
+    if sub_organization is None:
+        raise HTTPException(status_code=404, detail="Sub-organization not found!")
+
+    return SubOrganization.parse_obj(sub_organization)
 
 
 @router.delete("/{sub_organization_id}", response_description="Delete sub_organization")
-async def delete_sub_organization_endpoint(sub_organization_id: str):
-    await delete_sub_organization(sub_organization_id=sub_organization_id, database=db)
+async def delete_sub_organization(
+    database: GetDatabaseDep, sub_organization_id: str
+) -> None:
+    res = await database.suborgs.update_one(
+        {"_id": sub_organization_id}, {"$set": {"is_archived": True}}
+    )
+    if res.matched_count != 1:
+        raise HTTPException(status_code=404, detail="Sub-organization not found!")
 
 
 @router.post("", response_description="Create sub_organization", response_model="")
-async def create_sub_organization_endpoint(body: CreateSubOrganizationModel = Body()):
-    sub_organization = await create_sub_organization(database=db, data=body)
+async def create_sub_organization(
+    database: GetDatabaseDep,
+    user: GetUserFromSessionDep,
+    data: CreateSubOrganizationModel = Body(),
+) -> SubOrganization | None:
+    res = await database.orgs.find_one({"_id": user.organization_id})
+    if res is None:
+        raise HTTPException(status_code=404, detail="Sub-organization not found!")
+
+    sub_organization = SubOrganization(
+        name=data.name,
+        description=data.description,
+        organization_id=PyObjectId(user.organization_id),
+    )
+
+    await database.suborgs.insert_one(jsonable_encoder(sub_organization))
     return sub_organization

@@ -1,8 +1,10 @@
 class SponsorNotFound(BaseException):
     pass
 
+
 class CategoryNotFound(BaseException):
     pass
+
 
 class TicketNotFound(BaseException):
     pass
