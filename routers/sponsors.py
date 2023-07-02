@@ -4,7 +4,7 @@ from fastapi import APIRouter, HTTPException
 from fastapi.encoders import jsonable_encoder
 from motor.motor_asyncio import AsyncIOMotorClient
 
-from dependencies import GetDatabaseDep
+from storage import DatabaseDep
 from models.sponsor_models import Sponsor, CreateSponsorModel, EditSponsorModel
 
 router = APIRouter(prefix="/sponsors")
@@ -14,14 +14,14 @@ db = client["sponsorbook"]
 
 
 @router.get("", response_description="Get sponsors")
-async def get_sponsors(database: GetDatabaseDep, page_size: int = 100) -> List[Sponsor]:
+async def get_sponsors(database: DatabaseDep, page_size: int = 100) -> List[Sponsor]:
     return await database.sponsors.find({"is_archived": False}).to_list(page_size)
 
 
 @router.get(
     "/{sponsor_id}", response_description="Get one sponsor", response_model=Sponsor
 )
-async def get_sponsor(sponsor_id: str, database: GetDatabaseDep) -> Optional[Sponsor]:
+async def get_sponsor(sponsor_id: str, database: DatabaseDep) -> Optional[Sponsor]:
     sponsor = await database.sponsors.find_one(
         {"_id": sponsor_id, "is_archived": False}
     )
@@ -33,7 +33,7 @@ async def get_sponsor(sponsor_id: str, database: GetDatabaseDep) -> Optional[Spo
 
 
 @router.delete("/{sponsor_id}", response_description="Delete sponsor")
-async def delete_sponsor(database: GetDatabaseDep, sponsor_id: str) -> None:
+async def delete_sponsor(database: DatabaseDep, sponsor_id: str) -> None:
     res = await database.sponsors.update_one(
         {"_id": sponsor_id}, {"$set": {"is_archived": True}}
     )
@@ -42,7 +42,7 @@ async def delete_sponsor(database: GetDatabaseDep, sponsor_id: str) -> None:
 
 
 @router.post("", response_description="Create sponsor", response_model="")
-async def create_sponsor(database: GetDatabaseDep, data: CreateSponsorModel) -> Sponsor:
+async def create_sponsor(database: DatabaseDep, data: CreateSponsorModel) -> Sponsor:
     sponsor = Sponsor(
         name=data.name,
         rating=data.rating,
@@ -60,7 +60,7 @@ async def create_sponsor(database: GetDatabaseDep, data: CreateSponsorModel) -> 
 
 @router.put("/{sponsor_id}", response_description="Edit sponsor")
 async def update_sponsor(
-    database: GetDatabaseDep, sponsor_id: str, changes: EditSponsorModel
+    database: DatabaseDep, sponsor_id: str, changes: EditSponsorModel
 ) -> None:
     sponsor = await database.sponsors.find_one({"_id": sponsor_id})
 

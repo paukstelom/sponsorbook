@@ -3,22 +3,11 @@ from typing import Annotated
 import jwt
 from argon2 import PasswordHasher
 from fastapi import Cookie, HTTPException, Depends
-from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 
 from models.errors import UserNotFound
 from models.session import Session
 from models.user_models import User
-
-
-async def get_db() -> AsyncIOMotorDatabase:
-    client = AsyncIOMotorClient()
-    db = client["sponsorbook"]
-
-    async with await client.start_session():
-        yield db
-
-
-GetDatabaseDep = Annotated[AsyncIOMotorDatabase, Depends(get_db)]
+from storage import DatabaseDep
 
 
 async def get_session(
@@ -35,7 +24,7 @@ async def get_session(
 GetSessionDep = Annotated[Session, Depends(get_session)]
 
 
-async def get_user_from_session(db: GetDatabaseDep, session: GetSessionDep) -> User:
+async def get_user_from_session(db: DatabaseDep, session: GetSessionDep) -> User:
     user = await db.users.find_one({"_id": session.user_id})
 
     if user is None:

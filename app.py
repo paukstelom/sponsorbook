@@ -9,9 +9,9 @@ from starlette.responses import Response
 from dependencies import (
     GetSessionDep,
     GetUserFromSessionDep,
-    GetDatabaseDep,
     GetPasswordHasherDep,
 )
+from storage import DatabaseDep
 from models.authentication_models import Credentials
 from models.session import SessionWithUser
 from routers import (
@@ -38,7 +38,7 @@ key = "secret_key"
 
 @app.post("/login", response_description="Login")
 async def login_endpoint(
-    db: GetDatabaseDep,
+    db: DatabaseDep,
     hasher: GetPasswordHasherDep,
     credentials: Credentials = Body(...),
 ):
@@ -57,9 +57,7 @@ async def login_endpoint(
         algorithm="HS256",
     )
     response = Response()
-    response.set_cookie(
-        key="session", value=token, max_age=64 * 64
-    )
+    response.set_cookie(key="session", value=token, max_age=64 * 64)
     return response
 
 

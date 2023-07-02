@@ -3,7 +3,7 @@ from typing import List, Optional
 from fastapi import APIRouter, Body, HTTPException
 from fastapi.encoders import jsonable_encoder
 
-from dependencies import GetDatabaseDep
+from storage import DatabaseDep
 from models.category_models import Category, CreateCategoryModel
 
 router = APIRouter(prefix="/categories")
@@ -11,7 +11,7 @@ router = APIRouter(prefix="/categories")
 
 @router.get("", response_description="Get categories")
 async def get_all_categories(
-    database: GetDatabaseDep, page_size: int = 100
+    database: DatabaseDep, page_size: int = 100
 ) -> List[Category]:
     return (
         await database["categories"]
@@ -24,7 +24,7 @@ async def get_all_categories(
     "/{category_id}", response_description="Get one category", response_model=Category
 )
 async def get_one_category(
-    category_id: str, database: GetDatabaseDep
+    category_id: str, database: DatabaseDep
 ) -> Optional[Category]:
     category = await database.categories.find_one(
         {"_id": category_id, "is_archived": False}
@@ -37,7 +37,7 @@ async def get_one_category(
 
 
 @router.delete("/{category_id}", response_description="Delete category")
-async def delete_category(database: GetDatabaseDep, category_id: str) -> None:
+async def delete_category(database: DatabaseDep, category_id: str) -> None:
     res = await database.categories.update_one(
         {"_id": category_id}, {"$set": {"is_archived": True}}
     )
@@ -47,7 +47,7 @@ async def delete_category(database: GetDatabaseDep, category_id: str) -> None:
 
 @router.post("", response_description="Create category", response_model="")
 async def create_category(
-    database: GetDatabaseDep, data: CreateCategoryModel = Body()
+    database: DatabaseDep, data: CreateCategoryModel = Body()
 ) -> Category:
     category = Category(name=data.name, info=data.info)
 
