@@ -10,18 +10,19 @@ from models.session import Session
 from models.user_models import User
 
 
-def get_db() -> AsyncIOMotorDatabase:
+async def get_db() -> AsyncIOMotorDatabase:
     client = AsyncIOMotorClient()
     db = client["sponsorbook"]
 
-    return db
+    async with await client.start_session():
+        yield db
 
 
 GetDatabaseDep = Annotated[AsyncIOMotorDatabase, Depends(get_db)]
 
 
 async def get_session(
-    session: Annotated[str | None, Cookie()] = None,
+        session: Annotated[str | None, Cookie()] = None,
 ) -> Session:
     if session is None:
         raise HTTPException(status_code=403, detail="Session missing")

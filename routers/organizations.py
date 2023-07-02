@@ -49,18 +49,17 @@ async def create_organization(
 ):
     organization = Organization(name=body.name)
 
-    with database.client.start_session():
-        result = await database.orgs.insert_one(jsonable_encoder(organization))
-        organization = await database.orgs.find_one({"_id": result.inserted_id})
-        organization = Organization.parse_obj(organization)
+    result = await database.orgs.insert_one(jsonable_encoder(organization))
+    organization = await database.orgs.find_one({"_id": result.inserted_id})
+    organization = Organization.parse_obj(organization)
 
-        await create_user(
-            database,
-            CreateUserModel(
-                email=body.user_email,
-                type="president",
-                organization_id=str(organization.id),
-                password="qwerty",
-            ),
-            PasswordHasher(),
-        )
+    await create_user(
+        database,
+        CreateUserModel(
+            email=body.user_email,
+            type="president",
+            organization_id=str(organization.id),
+            password="qwerty",
+        ),
+        PasswordHasher(),
+    )
