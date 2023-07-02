@@ -3,7 +3,7 @@ from typing import List, Optional
 from fastapi import APIRouter, HTTPException
 from fastapi.encoders import jsonable_encoder
 
-from storage import DatabaseDep, TicketsDep
+from storage import DatabaseDep, TicketsDep, SponsorsDep, EventsDep
 from models.py_object_id import PyObjectId
 from models.ticket_models import Ticket, CreateTicketModel
 
@@ -12,8 +12,11 @@ router = APIRouter(prefix="/tickets")
 
 @router.post("", response_description="Create a ticket")
 async def create_ticket(
-    tickets: TicketsDep, data: CreateTicketModel
-) -> Ticket:
+    tickets: TicketsDep,
+    sponsors: SponsorsDep,
+    events: EventsDep,
+    data: CreateTicketModel,
+) -> str:
     res = await sponsors.find_one({"_id": data.sponsor_id})
     if res is None:
         raise HTTPException(status_code=400, detail="Sponsor not found!")
@@ -30,12 +33,10 @@ async def create_ticket(
     )
 
     inserted_id = await tickets.insert_one(jsonable_encoder(ticket))
-    return ticket
+    return inserted_id
 
 
-@router.get(
-    "/{ticket_id}", response_description="Get a ticket"
-)
+@router.get("/{ticket_id}", response_description="Get a ticket")
 async def get_ticket(ticket_id: str, tickets: TicketsDep) -> Ticket:
     ticket = await tickets.find_one({"_id": ticket_id})
 
@@ -52,8 +53,6 @@ async def get_tickets(tickets: TicketsDep, page_size: int = 100) -> List[Ticket]
 
 @router.delete("/{id}", response_description="Archive a ticket")
 async def delete_ticket(tickets: TicketsDep, ticket_id: str) -> None:
-    res = await tickets.update_one(
-        {"_id": ticket_id}, {"$set": {"is_archived": True}}
-    )
+    res = await tickets.update_one({"_id": ticket_id}, {"$set": {"is_archived": True}})
     if res.matched_count != 1:
         raise HTTPException(status_code=404, detail="Ticket not found!")

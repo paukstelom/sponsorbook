@@ -11,7 +11,7 @@ from storage import DatabaseDep
 
 
 async def get_session(
-        session: Annotated[str | None, Cookie()] = None,
+    session: Annotated[str | None, Cookie()] = None,
 ) -> Session:
     if session is None:
         raise HTTPException(status_code=403, detail="Session missing")

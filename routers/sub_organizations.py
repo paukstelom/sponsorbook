@@ -4,7 +4,7 @@ from fastapi import APIRouter, Body, HTTPException
 from fastapi.encoders import jsonable_encoder
 
 from dependencies import GetUserFromSessionDep
-from storage import DatabaseDep
+from storage import DatabaseDep, SubOrgsDep, OrgsDep
 from models.py_object_id import PyObjectId
 from models.sub_organization_models import SubOrganization, CreateSubOrganizationModel
 
@@ -16,9 +16,9 @@ router = APIRouter(prefix="/sub_organizations")
     response_description="Get sub_organization",
 )
 async def get_sub_organizations(
-    database: DatabaseDep, page_size: int = 100
+        suborgs: SubOrgsDep, page_size: int = 100
 ) -> List[SubOrganization]:
-    return await database.suborgs.find().to_list(page_size)
+    return await suborgs.find().to_list(page_size)
 
 
 @router.get(
@@ -27,9 +27,9 @@ async def get_sub_organizations(
     response_model=SubOrganization,
 )
 async def get_sub_organization(
-    sub_organization_id: str, database: DatabaseDep
+        sub_organization_id: str, suborgs: SubOrgsDep
 ) -> SubOrganization:
-    sub_organization = await database.suborgs.find_one({"_id": sub_organization_id})
+    sub_organization = await suborgs.find_one({"_id": sub_organization_id})
 
     if sub_organization is None:
         raise HTTPException(status_code=404, detail="Sub-organization not found!")
@@ -39,9 +39,9 @@ async def get_sub_organization(
 
 @router.delete("/{sub_organization_id}", response_description="Delete sub_organization")
 async def delete_sub_organization(
-    database: DatabaseDep, sub_organization_id: str
+        suborgs: SubOrgsDep, sub_organization_id: str
 ) -> None:
-    res = await database.suborgs.update_one(
+    res = await suborgs.update_one(
         {"_id": sub_organization_id}, {"$set": {"is_archived": True}}
     )
     if res.matched_count != 1:
@@ -50,11 +50,12 @@ async def delete_sub_organization(
 
 @router.post("", response_description="Create sub_organization", response_model="")
 async def create_sub_organization(
-    database: DatabaseDep,
-    user: GetUserFromSessionDep,
-    data: CreateSubOrganizationModel = Body(),
+        suborgs: SubOrgsDep,
+        orgs: OrgsDep,
+        user: GetUserFromSessionDep,
+        data: CreateSubOrganizationModel = Body(),
 ) -> SubOrganization | None:
-    res = await database.orgs.find_one({"_id": user.organization_id})
+    res = await orgs.find_one({"_id": user.organization_id})
     if res is None:
         raise HTTPException(status_code=404, detail="Sub-organization not found!")
 
@@ -64,5 +65,5 @@ async def create_sub_organization(
         organization_id=PyObjectId(user.organization_id),
     )
 
-    await database.suborgs.insert_one(jsonable_encoder(sub_organization))
+    await suborgs.insert_one(jsonable_encoder(sub_organization))
     return sub_organization
