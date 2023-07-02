@@ -13,7 +13,11 @@ router = APIRouter(prefix="/categories")
 async def get_all_categories(
     database: GetDatabaseDep, page_size: int = 100
 ) -> List[Category]:
-    return await database['categories'].find({"is_archived": False}).to_list(length=page_size)
+    return (
+        await database["categories"]
+        .find({"is_archived": False})
+        .to_list(length=page_size)
+    )
 
 
 @router.get(

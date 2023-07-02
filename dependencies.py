@@ -1,6 +1,7 @@
 from typing import Annotated
 
 import jwt
+from argon2 import PasswordHasher
 from fastapi import Cookie, HTTPException, Depends
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 
@@ -43,3 +44,10 @@ async def get_user_from_session(db: GetDatabaseDep, session: GetSessionDep) -> U
 
 
 GetUserFromSessionDep = Annotated[User, Depends(get_user_from_session)]
+
+
+async def get_password_hasher() -> PasswordHasher:
+    return PasswordHasher()
+
+
+GetPasswordHasherDep = Annotated[PasswordHasher, Depends(get_password_hasher)]

@@ -39,7 +39,7 @@ async def get_events(database: GetDatabaseDep, page_size: int = 100) -> List[Eve
     return await database.events.find({"is_archived": False}).to_list(page_size)
 
 
-@router.delete("/{id}", response_description="Archive an event")
+@router.delete("/{event_id}", response_description="Archive an event")
 async def delete_event(database: GetDatabaseDep, event_id: str) -> None:
     res = await database.events.update_one(
         {"_id": event_id}, {"$set": {"is_archived": True}}

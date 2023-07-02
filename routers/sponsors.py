@@ -60,7 +60,7 @@ async def create_sponsor(database: GetDatabaseDep, data: CreateSponsorModel) -> 
 
 @router.put("/{sponsor_id}", response_description="Edit sponsor")
 async def update_sponsor(
-        database: GetDatabaseDep, sponsor_id: str, changes: EditSponsorModel
+    database: GetDatabaseDep, sponsor_id: str, changes: EditSponsorModel
 ) -> None:
     sponsor = await database.sponsors.find_one({"_id": sponsor_id})
 

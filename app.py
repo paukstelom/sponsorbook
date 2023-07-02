@@ -1,12 +1,18 @@
-from argon2 import PasswordHasher
+from datetime import datetime
+
+import jwt
+from argon2.exceptions import VerifyMismatchError
 from fastapi import FastAPI, Body, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer
 from starlette.responses import Response
 
-from dependencies import GetSessionDep, GetUserFromSessionDep, GetDatabaseDep
+from dependencies import (
+    GetSessionDep,
+    GetUserFromSessionDep,
+    GetDatabaseDep,
+    GetPasswordHasherDep,
+)
 from models.authentication_models import Credentials
-from models.errors import InvalidCredentials
 from models.session import SessionWithUser
 from routers import (
     sponsors,
@@ -16,7 +22,6 @@ from routers import (
     organizations,
     categories,
 )
-from use_cases.authentication.login import authenticate_user
 
 app = FastAPI()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
@@ -28,17 +33,32 @@ app.include_router(sub_organizations.router)
 app.include_router(organizations.router)
 app.include_router(categories.router)
 
+key = "secret_key"
+
 
 @app.post("/login", response_description="Login")
-async def login_endpoint(db: GetDatabaseDep, body: Credentials = Body(...)):
-    try:
-        token = await authenticate_user(db, body, PasswordHasher())
-    except InvalidCredentials:
+async def login_endpoint(
+    db: GetDatabaseDep,
+    hasher: GetPasswordHasherDep,
+    credentials: Credentials = Body(...),
+):
+    user = await db.users.find_one({"email": credentials.email})
+    if user is None:
         raise HTTPException(status_code=403, detail="Bad credentials")
 
+    try:
+        hasher.verify(user["password"], credentials.password)
+    except VerifyMismatchError:
+        raise HTTPException(status_code=403, detail="Bad credentials")
+
+    token = jwt.encode(
+        {"user_id": user["_id"], "logged_in_at": str(datetime.now())},
+        key,
+        algorithm="HS256",
+    )
     response = Response()
     response.set_cookie(
-        key="session", value=token, samesite="none", secure=True, max_age=64 * 64
+        key="session", value=token, max_age=64 * 64
     )
     return response
 

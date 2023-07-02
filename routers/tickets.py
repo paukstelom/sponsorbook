@@ -12,7 +12,7 @@ router = APIRouter(prefix="/tickets")
 
 @router.post("", response_description="Create a ticket", response_model=Ticket)
 async def create_ticket(
-        database: GetDatabaseDep, data: CreateTicketModel
+    database: GetDatabaseDep, data: CreateTicketModel
 ) -> Ticket | None:
     res = await database.sponsors.find_one({"_id": data.sponsor_id})
     if res is None:
