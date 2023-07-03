@@ -10,6 +10,8 @@ services:
     ports:
       - 27017:27017
     entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0" ]
+    volumes:
+      - $HOME/mongodata/mongo0/data:/data/db
 
   mongo1:
     image: mongo
@@ -19,6 +21,8 @@ services:
     ports:
       - 27018:27017
     entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0" ]
+    volumes:
+      - $HOME/mongodata/mongo1/data:/data/db
 
   mongo2:
     image: mongo
@@ -28,6 +32,8 @@ services:
     ports:
       - 27019:27017
     entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0" ]
+    volumes:
+      - $HOME/mongodata/mongo2/data:/data/db
 
 networks:
   mongo_network:

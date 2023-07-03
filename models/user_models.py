@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import Field
 
 from models.base import EntityModel, BaseModelConfig, BaseCreationModel
 from models.py_object_id import PyObjectId
