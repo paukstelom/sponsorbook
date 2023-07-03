@@ -1,8 +1,12 @@
 from typing import List, Optional
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Body
 
-from models.contact_models import Contact
+from models.contact_models import (
+    Contact,
+    CreateContactModel,
+    CreateContactForSponsorModel,
+)
 from models.sponsor_models import Sponsor, CreateSponsorModel, EditSponsorModel
 from storage import SponsorRepositoryDep, ContactsDep, ContactRepositoryDep
 
@@ -104,3 +108,24 @@ async def get_contacts_for_sponsor(
         raise HTTPException(status_code=404, detail="Sponsor not found!")
 
     return await contacts.list_by_sponsor_id(sponsor.id)
+
+
+@router.post("/{sponsor_id}/contacts", response_description="Create contact")
+async def add_contact(
+    sponsors: SponsorRepositoryDep,
+    contacts: ContactRepositoryDep,
+    sponsor_id: str,
+    body: CreateContactForSponsorModel = Body(),
+) -> None:
+    if (sponsor := await sponsors.get_by_id(sponsor_id)) is None:
+        raise HTTPException(status_code=403, detail="Sponsor not found!")
+
+    contact = Contact(
+        name=body.name,
+        phone=body.phone,
+        email=body.email,
+        details=body.details,
+        sponsor_id=sponsor.id,
+    )
+
+    await contacts.insert(contact)

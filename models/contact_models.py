@@ -19,6 +19,13 @@ class CreateContactModel(BaseCreationModel):
     details: str = Field(default="")
 
 
+class CreateContactForSponsorModel(BaseCreationModel):
+    name: str = Field()
+    phone: str = Field()
+    email: str = Field()
+    details: str = Field(default="")
+
+
 class Contact(EntityModel):
     name: str = Field()
     sponsor_id: PyObjectId = Field()

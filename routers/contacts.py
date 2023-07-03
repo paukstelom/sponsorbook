@@ -16,14 +16,14 @@ async def add_contact(
         raise HTTPException(status_code=403, detail="Sponsor not found!")
 
     contact = Contact(
-        name=body.name, phone=body.phone, email=body.email, details=body.details
+        name=body.name,
+        phone=body.phone,
+        email=body.email,
+        details=body.details,
+        sponsor_id=sponsor.id,
     )
 
     await contacts.insert(contact)
-
-    sponsor.add_contact(contact.id)
-
-    await sponsors.save(sponsor)
 
 
 @router.delete("/{contact_id}", response_description="Delete contact")
