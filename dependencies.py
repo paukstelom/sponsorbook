@@ -1,9 +1,11 @@
+from datetime import datetime
 from typing import Annotated
 
 import jwt
 from argon2 import PasswordHasher
 from fastapi import Cookie, HTTPException, Depends
 
+from domain.auth import SessionEncoder
 from models.errors import UserNotFound
 from models.session import Session
 from models.user_models import User
@@ -42,3 +44,17 @@ async def get_password_hasher() -> PasswordHasher:
 
 
 GetPasswordHasherDep = Annotated[PasswordHasher, Depends(get_password_hasher)]
+
+
+class JWTSessionEncoder(SessionEncoder):
+    def encode(self, user: User) -> str:
+        key = "secret_key"
+
+        return jwt.encode(
+            {"user_id": str(user.id), "logged_in_at": str(datetime.now())},
+            key,
+            algorithm="HS256",
+        )
+
+
+SessionEncoderDep = Annotated[SessionEncoder, Depends(JWTSessionEncoder)]

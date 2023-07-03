@@ -12,7 +12,7 @@ router = APIRouter(prefix="/categories")
 async def get_all_categories(
     categories: CategoryRepositoryDep, page_size: int = 100
 ) -> List[Category]:
-    return await categories.list(length=page_size)
+    return await categories.list(page_size)
 
 
 @router.get(
