@@ -1,12 +1,10 @@
 from typing import List, Optional
 
-import bson
 from fastapi import APIRouter, HTTPException
-from fastapi.encoders import jsonable_encoder
 
 from models.contact_models import Contact
 from models.sponsor_models import Sponsor, CreateSponsorModel, EditSponsorModel
-from storage import SponsorsDep, SponsorRepositoryDep, ContactsDep, ContactRepositoryDep
+from storage import SponsorRepositoryDep, ContactsDep, ContactRepositoryDep
 
 router = APIRouter(prefix="/sponsors")
 

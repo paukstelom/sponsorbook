@@ -11,7 +11,6 @@ from dependencies import (
     GetUserFromSessionDep,
     GetPasswordHasherDep,
 )
-from storage import DatabaseDep, UserRepositoryDep
 from models.authentication_models import Credentials
 from models.session import SessionWithUser
 from routers import (
@@ -25,6 +24,7 @@ from routers import (
     users,
     conversations,
 )
+from storage import UserRepositoryDep
 
 app = FastAPI()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")

@@ -1,17 +1,13 @@
 from typing import List, Optional
 
 from fastapi import APIRouter, HTTPException
-from fastapi.encoders import jsonable_encoder
 
+from models.event_models import CreateEventModel, Event
+from models.ticket_models import Ticket
 from storage import (
-    DatabaseDep,
-    EventsDep,
-    TicketsDep,
     EventRepositoryDep,
     TicketRepositoryDep,
 )
-from models.event_models import CreateEventModel, Event
-from models.ticket_models import Ticket
 
 router = APIRouter(prefix="/events")
 

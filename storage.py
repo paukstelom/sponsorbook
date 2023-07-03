@@ -1,25 +1,9 @@
 from typing import Annotated, Optional, List, TypeVar
 
 from fastapi import Depends
-from motor.motor_asyncio import (
-    AsyncIOMotorCollection,
-    AsyncIOMotorDatabase,
-    AsyncIOMotorClient,
-    AsyncIOMotorClientSession,
-)
+import motor.motor_asyncio as motorasync
 
-from domain.repository import (
-    Repository,
-    OrgRepository,
-    SubOrgRepository,
-    SponsorRepository,
-    UserRepository,
-    ContactRepository,
-    EventRepository,
-    TicketRepository,
-    CategoryRepository,
-    ConversationRepository,
-)
+import domain.repository as repos
 from models.base import EntityModel
 from models.category_models import Category
 from models.contact_models import Contact
@@ -34,78 +18,82 @@ from models.ticket_models import Ticket
 from models.user_models import User
 
 
-async def get_db_session() -> AsyncIOMotorClientSession:
-    client = AsyncIOMotorClient(replicaset="rs0")
+async def get_db_session() -> motorasync.AsyncIOMotorClientSession:
+    client = motorasync.AsyncIOMotorClient(replicaset="rs0")
 
     async with await client.start_session() as session:
         async with session.start_transaction():
             yield session
 
 
-DatabaseSessionDep = Annotated[AsyncIOMotorClientSession, Depends(get_db_session)]
+DatabaseSessionDep = Annotated[
+    motorasync.AsyncIOMotorClientSession, Depends(get_db_session)
+]
 
 
-async def get_db(session: DatabaseSessionDep) -> AsyncIOMotorDatabase:
+async def get_db(session: DatabaseSessionDep) -> motorasync.AsyncIOMotorDatabase:
     return session.client["sponsorbook"]
 
 
-DatabaseDep = Annotated[AsyncIOMotorDatabase, Depends(get_db)]
+DatabaseDep = Annotated[motorasync.AsyncIOMotorDatabase, Depends(get_db)]
 
 
-def get_events(db: DatabaseDep) -> AsyncIOMotorCollection:
+def get_events(db: DatabaseDep) -> motorasync.AsyncIOMotorCollection:
     return db["events"]
 
 
-def get_contacts(db: DatabaseDep) -> AsyncIOMotorCollection:
+def get_contacts(db: DatabaseDep) -> motorasync.AsyncIOMotorCollection:
     return db["contacts"]
 
 
-def get_sponsors(db: DatabaseDep) -> AsyncIOMotorCollection:
+def get_sponsors(db: DatabaseDep) -> motorasync.AsyncIOMotorCollection:
     return db["sponsors"]
 
 
-def get_tickets(db: DatabaseDep) -> AsyncIOMotorCollection:
+def get_tickets(db: DatabaseDep) -> motorasync.AsyncIOMotorCollection:
     return db["tickets"]
 
 
-def get_orgs(db: DatabaseDep) -> AsyncIOMotorCollection:
+def get_orgs(db: DatabaseDep) -> motorasync.AsyncIOMotorCollection:
     return db["orgs"]
 
 
-def get_sub_orgs(db: DatabaseDep) -> AsyncIOMotorCollection:
+def get_sub_orgs(db: DatabaseDep) -> motorasync.AsyncIOMotorCollection:
     return db["suborgs"]
 
 
-def get_categories(db: DatabaseDep) -> AsyncIOMotorCollection:
+def get_categories(db: DatabaseDep) -> motorasync.AsyncIOMotorCollection:
     return db["categories"]
 
 
-def get_conversations(db: DatabaseDep) -> AsyncIOMotorCollection:
+def get_conversations(db: DatabaseDep) -> motorasync.AsyncIOMotorCollection:
     return db["conversations"]
 
 
-def get_users(db: DatabaseDep) -> AsyncIOMotorCollection:
+def get_users(db: DatabaseDep) -> motorasync.AsyncIOMotorCollection:
     return db["users"]
 
 
-TicketsDep = Annotated[AsyncIOMotorCollection, Depends(get_tickets)]
-SponsorsDep = Annotated[AsyncIOMotorCollection, Depends(get_sponsors)]
-EventsDep = Annotated[AsyncIOMotorCollection, Depends(get_events)]
-OrgsDep = Annotated[AsyncIOMotorCollection, Depends(get_orgs)]
-ContactsDep = Annotated[AsyncIOMotorCollection, Depends(get_contacts)]
-SubOrgsDep = Annotated[AsyncIOMotorCollection, Depends(get_sub_orgs)]
-CategoriesDep = Annotated[AsyncIOMotorCollection, Depends(get_categories)]
-ConversationsDep = Annotated[AsyncIOMotorCollection, Depends(get_conversations)]
-UsersDep = Annotated[AsyncIOMotorCollection, Depends(get_users)]
+TicketsDep = Annotated[motorasync.AsyncIOMotorCollection, Depends(get_tickets)]
+SponsorsDep = Annotated[motorasync.AsyncIOMotorCollection, Depends(get_sponsors)]
+EventsDep = Annotated[motorasync.AsyncIOMotorCollection, Depends(get_events)]
+OrgsDep = Annotated[motorasync.AsyncIOMotorCollection, Depends(get_orgs)]
+ContactsDep = Annotated[motorasync.AsyncIOMotorCollection, Depends(get_contacts)]
+SubOrgsDep = Annotated[motorasync.AsyncIOMotorCollection, Depends(get_sub_orgs)]
+CategoriesDep = Annotated[motorasync.AsyncIOMotorCollection, Depends(get_categories)]
+ConversationsDep = Annotated[
+    motorasync.AsyncIOMotorCollection, Depends(get_conversations)
+]
+UsersDep = Annotated[motorasync.AsyncIOMotorCollection, Depends(get_users)]
 
 T = TypeVar("T", bound=EntityModel)
 
 
-class CollectionRepository(Repository[T]):
+class CollectionRepository(repos.Repository[T]):
     def __init__(
         self,
-        collection: AsyncIOMotorCollection,
-        session: AsyncIOMotorClientSession,
+        collection: motorasync.AsyncIOMotorCollection,
+        session: motorasync.AsyncIOMotorClientSession,
         type: type[T],
     ):
         self.collection = collection
@@ -147,7 +135,7 @@ class OrgRepositoryCollection(CollectionRepository[Organization]):
         super().__init__(collection, session, Organization)
 
 
-OrgRepositoryDep = Annotated[OrgRepository, Depends(OrgRepositoryCollection)]
+OrgRepositoryDep = Annotated[repos.OrgRepository, Depends(OrgRepositoryCollection)]
 
 
 class SubOrgCollectionRepository(CollectionRepository[SubOrganization]):
@@ -155,7 +143,9 @@ class SubOrgCollectionRepository(CollectionRepository[SubOrganization]):
         super().__init__(collection, session, SubOrganization)
 
 
-SubOrgRepositoryDep = Annotated[SubOrgRepository, Depends(SubOrgCollectionRepository)]
+SubOrgRepositoryDep = Annotated[
+    repos.SubOrgRepository, Depends(SubOrgCollectionRepository)
+]
 
 
 class SponsorCollectionRepository(CollectionRepository[Sponsor]):
@@ -164,7 +154,7 @@ class SponsorCollectionRepository(CollectionRepository[Sponsor]):
 
 
 SponsorRepositoryDep = Annotated[
-    SponsorRepository, Depends(SponsorCollectionRepository)
+    repos.SponsorRepository, Depends(SponsorCollectionRepository)
 ]
 
 
@@ -177,7 +167,7 @@ class UserCollectionRepository(CollectionRepository[User]):
         return user if user is None else User.parse_obj(user)
 
 
-UserRepositoryDep = Annotated[UserRepository, Depends(UserCollectionRepository)]
+UserRepositoryDep = Annotated[repos.UserRepository, Depends(UserCollectionRepository)]
 
 
 class ContactCollectionRepository(CollectionRepository[Contact]):
@@ -186,7 +176,7 @@ class ContactCollectionRepository(CollectionRepository[Contact]):
 
 
 ContactRepositoryDep = Annotated[
-    ContactRepository, Depends(ContactCollectionRepository)
+    repos.ContactRepository, Depends(ContactCollectionRepository)
 ]
 
 
@@ -195,7 +185,9 @@ class EventCollectionRepository(CollectionRepository[Event]):
         super().__init__(collection, session, Event)
 
 
-EventRepositoryDep = Annotated[EventRepository, Depends(EventCollectionRepository)]
+EventRepositoryDep = Annotated[
+    repos.EventRepository, Depends(EventCollectionRepository)
+]
 
 
 class TicketCollectionRepository(CollectionRepository[Ticket]):
@@ -203,7 +195,9 @@ class TicketCollectionRepository(CollectionRepository[Ticket]):
         super().__init__(collection, session, Ticket)
 
 
-TicketRepositoryDep = Annotated[TicketRepository, Depends(TicketCollectionRepository)]
+TicketRepositoryDep = Annotated[
+    repos.TicketRepository, Depends(TicketCollectionRepository)
+]
 
 
 class CategoryCollectionRepository(CollectionRepository[Category]):
@@ -212,7 +206,7 @@ class CategoryCollectionRepository(CollectionRepository[Category]):
 
 
 CategoryRepositoryDep = Annotated[
-    CategoryRepository, Depends(CategoryCollectionRepository)
+    repos.CategoryRepository, Depends(CategoryCollectionRepository)
 ]
 
 
@@ -222,5 +216,5 @@ class ConversationCollectionRepository(CollectionRepository[Conversation]):
 
 
 ConversationRepositoryDep = Annotated[
-    ConversationRepository, Depends(ConversationCollectionRepository)
+    repos.ConversationRepository, Depends(ConversationCollectionRepository)
 ]

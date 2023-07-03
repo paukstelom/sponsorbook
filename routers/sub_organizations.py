@@ -1,19 +1,13 @@
-from typing import List, Annotated
+from typing import List
 
-from fastapi import APIRouter, Body, HTTPException, Depends
-from fastapi.encoders import jsonable_encoder
+from fastapi import APIRouter, Body, HTTPException
 
 from dependencies import GetUserFromSessionDep
+from models.sub_organization_models import SubOrganization, CreateSubOrganizationModel
 from storage import (
-    DatabaseDep,
-    SubOrgsDep,
-    OrgsDep,
-    OrgRepositoryCollection,
     OrgRepositoryDep,
     SubOrgRepositoryDep,
 )
-from models.py_object_id import PyObjectId
-from models.sub_organization_models import SubOrganization, CreateSubOrganizationModel
 
 router = APIRouter(prefix="/sub_organizations")
 
