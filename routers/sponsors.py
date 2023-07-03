@@ -98,11 +98,9 @@ async def update_sponsor(
 
 @router.get("/{sponsor_id}/contacts", response_description="Get contacts for sponsor")
 async def get_contacts_for_sponsor(
-    sponsors: SponsorRepositoryDep, _contacts: ContactsDep, sponsor_id: str
+    sponsors: SponsorRepositoryDep, contacts: ContactRepositoryDep, sponsor_id: str
 ) -> List[Contact]:
     if (sponsor := await sponsors.get_by_id(sponsor_id)) is None:
         raise HTTPException(status_code=404, detail="Sponsor not found!")
 
-    return await _contacts.find(
-        {"sponsor_id": sponsor.id, "is_archived": False}
-    ).to_list(length=100)
+    return await contacts.list_by_sponsor_id(sponsor.id)

@@ -1,6 +1,6 @@
 from pydantic import Field
 
-from models.base import EntityModel, BaseCreationModel
+from models.base import EntityModel, BaseCreationModel, BaseModelConfig
 from models.py_object_id import PyObjectId
 
 
@@ -25,3 +25,6 @@ class Contact(EntityModel):
     phone: str = Field()
     email: str = Field()
     details: str = Field(default="")
+
+    class Config(BaseModelConfig):
+        ...

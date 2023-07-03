@@ -174,6 +174,23 @@ class ContactCollectionRepository(CollectionRepository[Contact]):
     def __init__(self, collection: ContactsDep, session: DatabaseSessionDep):
         super().__init__(collection, session, Contact)
 
+    async def list_by_sponsor_id(
+        self, _id: PyObjectId | str, page_size: int = 100
+    ) -> List[Contact]:
+        if isinstance(_id, str):
+            _id = PyObjectId(_id)
+
+        bsons = await self.collection.find(
+            {"sponsor_id": _id, "is_archived": False}
+        ).to_list(page_size)
+
+        models_out = []
+
+        for x in bsons:
+            models_out.append(self.parser(x))
+
+        return models_out
+
 
 ContactRepositoryDep = Annotated[
     repos.ContactRepository, Depends(ContactCollectionRepository)

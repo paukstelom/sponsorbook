@@ -47,7 +47,10 @@ class UserRepository(Repository[User]):
 
 
 class ContactRepository(Repository[Contact]):
-    ...
+    async def list_by_sponsor_id(
+        self, sponsor_id: PyObjectId | str, page_size: int = 100
+    ) -> List[Contact]:
+        ...
 
 
 class EventRepository(Repository[Event]):
