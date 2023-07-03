@@ -12,7 +12,7 @@ router = APIRouter(prefix="/organizations")
 
 @router.get("", response_description="Get organization")
 async def get_all_organizations(
-        database: DatabaseDep, page_size: int = 100
+    database: DatabaseDep, page_size: int = 100
 ) -> List[Organization]:
     return await database.orgs.find().to_list(page_size)
 
@@ -22,7 +22,7 @@ async def get_all_organizations(
     response_description="Get one organization",
 )
 async def get_organization(
-        organization_id: str, orgs: OrgRepositoryDep, user: GetUserFromSessionDep
+    organization_id: str, orgs: OrgRepositoryDep, user: GetUserFromSessionDep
 ) -> Organization:
     if not user.is_admin():
         raise HTTPException(
@@ -41,7 +41,7 @@ async def get_organization(
     response_description="Get one organization",
 )
 async def get_sponsors_for_org(
-        organization_id: str, sponsors: SponsorsDep, user: GetUserFromSessionDep
+    organization_id: str, sponsors: SponsorsDep, user: GetUserFromSessionDep
 ) -> Organization:
     if organization_id != user.organization_id:
         raise HTTPException(
@@ -64,10 +64,10 @@ async def delete_organization(orgs: OrgRepositoryDep, organization_id: str) -> N
 
 @router.post("", response_description="Create organization")
 async def create_organization(
-        orgs: OrgRepositoryDep,
-        users: UserRepositoryDep,
-        hasher: GetPasswordHasherDep,
-        body: CreateOrganizationModel = Body(),
+    orgs: OrgRepositoryDep,
+    users: UserRepositoryDep,
+    hasher: GetPasswordHasherDep,
+    body: CreateOrganizationModel = Body(),
 ):
     organization = Organization(name=body.name)
     await orgs.insert(organization)

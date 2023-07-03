@@ -1,4 +1,4 @@
-from typing import Annotated, Optional, List, TypeVar, Generic
+from typing import Annotated, Optional, List, TypeVar
 
 from fastapi import Depends
 from motor.motor_asyncio import (
@@ -8,10 +8,23 @@ from motor.motor_asyncio import (
     AsyncIOMotorClientSession,
 )
 
+from domain.repository import (
+    Repository,
+    OrgRepository,
+    SubOrgRepository,
+    SponsorRepository,
+    UserRepository,
+    ContactRepository,
+    EventRepository,
+    TicketRepository,
+    CategoryRepository,
+    ConversationRepository,
+)
 from models.base import EntityModel
 from models.category_models import Category
 from models.contact_models import Contact
 from models.conversation_models import Conversation
+from models.errors import CouldNotSave
 from models.event_models import Event
 from models.organization_models import Organization
 from models.py_object_id import PyObjectId
@@ -85,20 +98,15 @@ CategoriesDep = Annotated[AsyncIOMotorCollection, Depends(get_categories)]
 ConversationsDep = Annotated[AsyncIOMotorCollection, Depends(get_conversations)]
 UsersDep = Annotated[AsyncIOMotorCollection, Depends(get_users)]
 
-
-class CouldNotSave(BaseException):
-    ...
-
-
 T = TypeVar("T", bound=EntityModel)
 
 
-class CollectionRepository(Generic[T]):
+class CollectionRepository(Repository[T]):
     def __init__(
-            self,
-            collection: AsyncIOMotorCollection,
-            session: AsyncIOMotorClientSession,
-            type: type[T],
+        self,
+        collection: AsyncIOMotorCollection,
+        session: AsyncIOMotorClientSession,
+        type: type[T],
     ):
         self.collection = collection
         self.session = session
@@ -134,31 +142,33 @@ class CollectionRepository(Generic[T]):
         return models_out
 
 
-class OrgRepository(CollectionRepository[Organization]):
+class OrgRepositoryCollection(CollectionRepository[Organization]):
     def __init__(self, collection: OrgsDep, session: DatabaseSessionDep):
         super().__init__(collection, session, Organization)
 
 
-OrgRepositoryDep = Annotated[OrgRepository, Depends()]
+OrgRepositoryDep = Annotated[OrgRepository, Depends(OrgRepositoryCollection)]
 
 
-class SubOrgRepository(CollectionRepository[SubOrganization]):
+class SubOrgCollectionRepository(CollectionRepository[SubOrganization]):
     def __init__(self, collection: SubOrgsDep, session: DatabaseSessionDep):
         super().__init__(collection, session, SubOrganization)
 
 
-SubOrgRepositoryDep = Annotated[SubOrgRepository, Depends()]
+SubOrgRepositoryDep = Annotated[SubOrgRepository, Depends(SubOrgCollectionRepository)]
 
 
-class SponsorRepository(CollectionRepository[Sponsor]):
+class SponsorCollectionRepository(CollectionRepository[Sponsor]):
     def __init__(self, collection: SponsorsDep, session: DatabaseSessionDep):
         super().__init__(collection, session, Sponsor)
 
 
-SponsorRepositoryDep = Annotated[SponsorRepository, Depends()]
+SponsorRepositoryDep = Annotated[
+    SponsorRepository, Depends(SponsorCollectionRepository)
+]
 
 
-class UserRepository(CollectionRepository[User]):
+class UserCollectionRepository(CollectionRepository[User]):
     def __init__(self, collection: UsersDep, session: DatabaseSessionDep):
         super().__init__(collection, session, User)
 
@@ -167,44 +177,50 @@ class UserRepository(CollectionRepository[User]):
         return user if user is None else User.parse_obj(user)
 
 
-UserRepositoryDep = Annotated[UserRepository, Depends()]
+UserRepositoryDep = Annotated[UserRepository, Depends(UserCollectionRepository)]
 
 
-class ContactRepository(CollectionRepository[Contact]):
+class ContactCollectionRepository(CollectionRepository[Contact]):
     def __init__(self, collection: ContactsDep, session: DatabaseSessionDep):
         super().__init__(collection, session, Contact)
 
 
-ContactRepositoryDep = Annotated[ContactRepository, Depends()]
+ContactRepositoryDep = Annotated[
+    ContactRepository, Depends(ContactCollectionRepository)
+]
 
 
-class EventRepository(CollectionRepository[Event]):
+class EventCollectionRepository(CollectionRepository[Event]):
     def __init__(self, collection: EventsDep, session: DatabaseSessionDep):
         super().__init__(collection, session, Event)
 
 
-EventRepositoryDep = Annotated[EventRepository, Depends()]
+EventRepositoryDep = Annotated[EventRepository, Depends(EventCollectionRepository)]
 
 
-class TicketRepository(CollectionRepository[Ticket]):
+class TicketCollectionRepository(CollectionRepository[Ticket]):
     def __init__(self, collection: TicketsDep, session: DatabaseSessionDep):
         super().__init__(collection, session, Ticket)
 
 
-TicketRepositoryDep = Annotated[TicketRepository, Depends()]
+TicketRepositoryDep = Annotated[TicketRepository, Depends(TicketCollectionRepository)]
 
 
-class CategoryRepository(CollectionRepository[Category]):
+class CategoryCollectionRepository(CollectionRepository[Category]):
     def __init__(self, collection: CategoriesDep, session: DatabaseSessionDep):
         super().__init__(collection, session, Category)
 
 
-CategoryRepositoryDep = Annotated[CategoryRepository, Depends()]
+CategoryRepositoryDep = Annotated[
+    CategoryRepository, Depends(CategoryCollectionRepository)
+]
 
 
-class ConversationRepository(CollectionRepository[Conversation]):
+class ConversationCollectionRepository(CollectionRepository[Conversation]):
     def __init__(self, collection: ConversationsDep, session: DatabaseSessionDep):
         super().__init__(collection, session, Conversation)
 
 
-ConversationRepositoryDep = Annotated[ConversationRepository, Depends()]
+ConversationRepositoryDep = Annotated[
+    ConversationRepository, Depends(ConversationCollectionRepository)
+]

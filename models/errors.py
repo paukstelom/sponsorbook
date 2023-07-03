@@ -32,3 +32,7 @@ class SubOrganizationNotFound(BaseException):
 
 class UserNotFound(BaseException):
     pass
+
+
+class CouldNotSave(BaseException):
+    ...

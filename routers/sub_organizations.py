@@ -8,7 +8,7 @@ from storage import (
     DatabaseDep,
     SubOrgsDep,
     OrgsDep,
-    OrgRepository,
+    OrgRepositoryCollection,
     OrgRepositoryDep,
     SubOrgRepositoryDep,
 )

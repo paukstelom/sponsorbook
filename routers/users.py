@@ -11,10 +11,10 @@ router = APIRouter(prefix="/users")
 
 @router.post("", response_description="Create a user")
 async def create_user(
-        users: UserRepositoryDep,
-        orgs: OrgRepositoryDep,
-        hasher: GetPasswordHasherDep,
-        data: CreateUserModel,
+    users: UserRepositoryDep,
+    orgs: OrgRepositoryDep,
+    hasher: GetPasswordHasherDep,
+    data: CreateUserModel,
 ) -> User:
     if (organization := await orgs.get_by_id(data.organization_id)) is None:
         raise HTTPException(status_code=404, detail="Organization not found!")
@@ -40,9 +40,7 @@ async def get_user(user_id: str, users: UserRepositoryDep) -> User:
 
 
 @router.get("", response_description="Get all users")
-async def get_users(
-        users: UserRepositoryDep, page_size: int = 100
-) -> List[User]:
+async def get_users(users: UserRepositoryDep, page_size: int = 100) -> List[User]:
     return await users.list(page_size)
 
 
