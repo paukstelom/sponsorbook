@@ -1,11 +1,10 @@
 from datetime import datetime
 from typing import List, Optional
 
-from bson import ObjectId
 from pydantic import BaseModel, Field
 
-from models.contact_models import Contact
-from models.py_object_id import PyObjectId
+from models.base import EntityModel, BaseModelConfig, BaseCreationModel
+from models.contact_models import CreateContactNestedModel
 
 
 class Rating(BaseModel):
@@ -13,23 +12,17 @@ class Rating(BaseModel):
     info: str = Field()
 
 
-class Sponsor(BaseModel):
-    id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
+class Sponsor(EntityModel):
     company_number: str = Field(alias="companyNumber")
     name: str = Field()
-    contacts: List[Contact] = Field()
     website: str = Field()
     categories: List[str] = Field()
     rating: Rating = Field()
     description: str = Field()
-    is_archived: bool = Field(default=False)
     status: str = Field(default="Available")
     creation_date: datetime = Field(default_factory=datetime.now)
 
-    class Config:
-        allow_population_by_field_name = True
-        arbitrary_types_allowed = True
-        json_encoders = {ObjectId: str}
+    class Config(BaseModelConfig):
         schema_extra = {
             "example": {
                 "_id": "123123123",
@@ -39,27 +32,21 @@ class Sponsor(BaseModel):
         }
 
 
-class CreateSponsorModel(BaseModel):
+class CreateSponsorModel(BaseCreationModel):
     company_number: str = Field(alias="companyNumber")
     name: str = Field()
     description: str = Field()
-    contacts: List[Contact] = Field()
+    contacts: List[CreateContactNestedModel] = Field()
     categories: List[str] = Field()
     rating: Rating = Field()
     website: str = Field()
 
-    class Config:
-        arbitrary_types_allowed = True
-        allow_population_by_field_name = True
-        json_encoders = {ObjectId: str}
 
-
-class EditSponsorModel(BaseModel):
+class EditSponsorModel(BaseCreationModel):
     company_number: Optional[str] = Field(alias="companyNumber")
     name: Optional[str] = Field()
-    contacts: Optional[List[Contact]] = Field()
-    website: Optional[str] = Field()
     categories: List[str] = Field()
+    website: Optional[str] = Field()
     rating: Optional[Rating] = Field()
     description: Optional[str] = Field()
     is_archived: Optional[bool] = Field()

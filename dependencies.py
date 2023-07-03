@@ -18,6 +18,7 @@ async def get_session(
 
     key = "secret_key"
     session = Session.parse_obj(jwt.decode(jwt=session, key=key, algorithms=["HS256"]))
+
     return session
 
 

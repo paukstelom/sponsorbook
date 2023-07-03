@@ -11,7 +11,7 @@ from dependencies import (
     GetUserFromSessionDep,
     GetPasswordHasherDep,
 )
-from storage import DatabaseDep
+from storage import DatabaseDep, UserRepositoryDep
 from models.authentication_models import Credentials
 from models.session import SessionWithUser
 from routers import (
@@ -21,6 +21,7 @@ from routers import (
     sub_organizations,
     organizations,
     categories,
+    contacts, users, conversations,
 )
 
 app = FastAPI()
@@ -32,27 +33,29 @@ app.include_router(events.router)
 app.include_router(sub_organizations.router)
 app.include_router(organizations.router)
 app.include_router(categories.router)
+app.include_router(contacts.router)
+app.include_router(users.router)
+app.include_router(conversations.router)
 
 key = "secret_key"
 
 
 @app.post("/login", response_description="Login")
 async def login_endpoint(
-    db: DatabaseDep,
+    users: UserRepositoryDep,
     hasher: GetPasswordHasherDep,
     credentials: Credentials = Body(...),
 ):
-    user = await db.users.find_one({"email": credentials.email})
-    if user is None:
+    if (user := await users.get_by_email(credentials.email)) is None:
         raise HTTPException(status_code=403, detail="Bad credentials")
 
     try:
-        hasher.verify(user["password"], credentials.password)
+        hasher.verify(user.password, credentials.password)
     except VerifyMismatchError:
         raise HTTPException(status_code=403, detail="Bad credentials")
 
     token = jwt.encode(
-        {"user_id": user["_id"], "logged_in_at": str(datetime.now())},
+        {"user_id": str(user.id), "logged_in_at": str(datetime.now())},
         key,
         algorithm="HS256",
     )

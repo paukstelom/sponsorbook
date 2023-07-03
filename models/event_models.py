@@ -1,24 +1,19 @@
-from datetime import datetime
+from pydantic import Field
 
-from bson import ObjectId
-from pydantic import BaseModel, Field
-
+from models.base import EntityModel, BaseModelConfig, BaseCreationModel
 from models.py_object_id import PyObjectId
 
 
-class Event(BaseModel):
-    id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
+class Event(EntityModel):
     name: str = Field()
     description: str = Field()
-    is_archived: bool = Field(default=False)
     status: str = Field(default="Ongoing")
-    sub_organization_ids: list[str] = Field(default=[])
-    creation_date: datetime = Field(default_factory=datetime.now)
+    sub_organization_ids: list[PyObjectId] = Field(default=[])
 
-    class Config:
-        allow_population_by_field_name = True
-        arbitrary_types_allowed = True
-        json_encoders = {ObjectId: str}
+    def close(self):
+        self.status = "Closed"
+
+    class Config(BaseModelConfig):
         schema_extra = {
             "example": {
                 "_id": "123123123",
@@ -28,11 +23,7 @@ class Event(BaseModel):
         }
 
 
-class CreateEventModel(BaseModel):
+class CreateEventModel(BaseCreationModel):
     name: str = Field()
     description: str = Field()
     sub_organization_ids: list[str] = Field(default=[])
-
-    class Config:
-        arbitrary_types_allowed = True
-        json_encoders = {ObjectId: str}

@@ -1,5 +1,6 @@
 import pytest
 
+from app import app
 from models.errors import OrganizationNotFound
 from models.py_object_id import PyObjectId
 from tests.defaults import default_organization, sponsorbook_database
@@ -7,6 +8,7 @@ from use_cases.organization_cases.create_organization import create_organization
 from use_cases.organization_cases.delete_organization import delete_organization
 from use_cases.organization_cases.get_all_organizations import get_all_organizations
 from use_cases.organization_cases.get_organization import get_organization
+from fastapi.testclient import TestClient
 
 
 async def test_create_organization():

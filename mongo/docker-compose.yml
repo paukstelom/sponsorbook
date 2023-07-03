@@ -1,0 +1,37 @@
+version: "3"
+
+services:
+
+  mongo0:
+    image: mongo
+    networks:
+      mongo_network:
+        ipv4_address: 172.16.238.10
+    ports:
+      - 27017:27017
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0" ]
+
+  mongo1:
+    image: mongo
+    networks:
+      mongo_network:
+        ipv4_address: 172.16.238.11
+    ports:
+      - 27018:27017
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0" ]
+
+  mongo2:
+    image: mongo
+    networks:
+      mongo_network:
+        ipv4_address: 172.16.238.12
+    ports:
+      - 27019:27017
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0" ]
+
+networks:
+  mongo_network:
+    ipam:
+      driver: default
+      config:
+        - subnet: "172.16.238.0/24"

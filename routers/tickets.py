@@ -1,58 +1,58 @@
-from typing import List, Optional
+from typing import List
 
 from fastapi import APIRouter, HTTPException
-from fastapi.encoders import jsonable_encoder
 
-from storage import DatabaseDep, TicketsDep, SponsorsDep, EventsDep
 from models.py_object_id import PyObjectId
 from models.ticket_models import Ticket, CreateTicketModel
+from storage import TicketRepositoryDep, SponsorRepositoryDep, EventRepositoryDep
 
 router = APIRouter(prefix="/tickets")
 
 
 @router.post("", response_description="Create a ticket")
 async def create_ticket(
-    tickets: TicketsDep,
-    sponsors: SponsorsDep,
-    events: EventsDep,
+    tickets: TicketRepositoryDep,
+    sponsors: SponsorRepositoryDep,
+    events: EventRepositoryDep,
     data: CreateTicketModel,
 ) -> str:
-    res = await sponsors.find_one({"_id": data.sponsor_id})
-    if res is None:
+    if (sponsor := await sponsors.get_by_id(data.sponsor_id)) is None:
         raise HTTPException(status_code=400, detail="Sponsor not found!")
 
-    res = await events.find_one({"_id": data.event_id})
-    if res is None:
+    if (event := await events.get_by_id(data.event_id)) is None:
         raise HTTPException(status_code=400, detail="Event not found!")
 
     ticket = Ticket(
         title=data.title,
         description=data.description,
-        sponsor_id=PyObjectId(data.sponsor_id),
-        event_id=PyObjectId(data.event_id),
+        sponsor_id=PyObjectId(sponsor.id),
+        event_id=PyObjectId(event.id),
     )
 
-    inserted_id = await tickets.insert_one(jsonable_encoder(ticket))
-    return inserted_id
+    await tickets.insert(ticket)
+    return str(ticket.id)
 
 
 @router.get("/{ticket_id}", response_description="Get a ticket")
-async def get_ticket(ticket_id: str, tickets: TicketsDep) -> Ticket:
-    ticket = await tickets.find_one({"_id": ticket_id})
-
-    if ticket is None:
+async def get_ticket(ticket_id: str, tickets: TicketRepositoryDep) -> Ticket:
+    if (ticket := await tickets.get_by_id(ticket_id)) is None:
         raise HTTPException(status_code=404, detail="Ticket not found!")
 
     return ticket
 
 
 @router.get("", response_description="Get all tickets")
-async def get_tickets(tickets: TicketsDep, page_size: int = 100) -> List[Ticket]:
-    return await tickets.find().to_list(page_size)
+async def get_tickets(
+    tickets: TicketRepositoryDep, page_size: int = 100
+) -> List[Ticket]:
+    return await tickets.list(page_size)
 
 
-@router.delete("/{id}", response_description="Archive a ticket")
-async def delete_ticket(tickets: TicketsDep, ticket_id: str) -> None:
-    res = await tickets.update_one({"_id": ticket_id}, {"$set": {"is_archived": True}})
-    if res.matched_count != 1:
+@router.delete("/{ticket_id}", response_description="Archive a ticket")
+async def delete_ticket(tickets: TicketRepositoryDep, ticket_id: str) -> None:
+    if (ticket := await tickets.get_by_id(ticket_id)) is None:
         raise HTTPException(status_code=404, detail="Ticket not found!")
+
+    ticket.archive()
+
+    await tickets.save(ticket)
