@@ -14,12 +14,13 @@ T = TypeVar("T", bound=EntityModel)
 ID_FIELD = "_id"
 IS_ARCHIVED_FIELD = "is_archived"
 
+
 class CollectionRepository(Repository[T]):
     def __init__(
-            self,
-            collection: AsyncIOMotorCollection,
-            session: AsyncIOMotorClientSession,
-            type: type[T],
+        self,
+        collection: AsyncIOMotorCollection,
+        session: AsyncIOMotorClientSession,
+        type: type[T],
     ):
         super().__init__()
         self.collection = collection
@@ -65,12 +66,14 @@ class CollectionRepository(Repository[T]):
             models_out.append(self.parser(x))
 
         return models_out
+
+
 class LoggedCollectionRepository(CollectionRepository[T], WithLogger):
     def __init__(
-            self,
-            collection: AsyncIOMotorCollection,
-            session: AsyncIOMotorClientSession,
-            type: type[T],
+        self,
+        collection: AsyncIOMotorCollection,
+        session: AsyncIOMotorClientSession,
+        type: type[T],
     ):
         super().__init__(collection=collection, session=session, type=type)
 
@@ -94,4 +97,3 @@ class LoggedCollectionRepository(CollectionRepository[T], WithLogger):
         self.log.info("Listing elements", page_size=page_size)
 
         return await super().list(page_size)
-

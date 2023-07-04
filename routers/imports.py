@@ -39,20 +39,14 @@ async def _import(
     file.file.close()
 
     contacts_to_insert = []
-    categories_inserted = {}
     for df in dfs.values():
         for row in df.iloc:
             sponsor_id = PyObjectId()
             category_name = get_or_default(row[1], "Unknown")
 
-            if (
-                category := await categories.get_by_name(category_name)
-            ) is None and category_name not in categories_inserted:
+            if (category := await categories.get_by_name(category_name)) is None:
                 category = Category(name=category_name, info="")
                 await categories.insert(category)
-                categories_inserted[category_name] = category
-            elif category_name in categories_inserted:
-                category = categories_inserted[category_name]
 
             sponsor_name = get_or_default(row[0], "Unknown sponsor name")
             status = get_or_default(row[2], "Unknown")

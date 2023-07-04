@@ -13,7 +13,7 @@ logger = structlog.getLogger()
 
 
 async def get_session_opt(
-        session: Annotated[str | None, Cookie()] = None,
+    session: Annotated[str | None, Cookie()] = None,
 ) -> Session | None:
     if session is None:
         return None
@@ -38,7 +38,7 @@ RequireSession = Annotated[Session, Depends(get_session)]
 
 
 async def get_user_from_session_opt(
-        users: UserRepositoryDep, session: MaybeSession
+    users: UserRepositoryDep, session: MaybeSession
 ) -> User | None:
     return await users.get_by_id(session.user_id)
 
