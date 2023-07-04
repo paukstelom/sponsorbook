@@ -9,10 +9,10 @@ from dependencies import (
     EncodeSessionDep,
     VerifyPasswordDep,
     HashPasswordDep,
+    UserRepositoryDep,
 )
 from models.authentication_models import Credentials
 from models.session import SessionWithUser
-from storage.UserCollectionRepository import UserRepositoryDep
 
 router = APIRouter(prefix="/auth")
 

@@ -3,9 +3,8 @@ from typing import List
 from fastapi import APIRouter, Body, HTTPException
 
 from dependencies import RequireUser
+from dependencies.infrastructure import OrgRepositoryDep, SubOrgRepositoryDep
 from models.sub_organization_models import SubOrganization, CreateSubOrganizationModel
-from storage.SubOrgCollectionRepository import SubOrgRepositoryDep
-from storage.OrgRepositoryCollection import OrgRepositoryDep
 
 router = APIRouter(prefix="/sub_organizations")
 

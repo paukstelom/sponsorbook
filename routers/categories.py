@@ -3,7 +3,7 @@ from typing import List, Optional
 from fastapi import APIRouter, Body, HTTPException
 
 from models.category_models import Category, CreateCategoryModel
-from storage.CategoryCollectionRepository import CategoryRepositoryDep
+from dependencies.infrastructure import CategoryRepositoryDep
 
 router = APIRouter(prefix="/categories")
 

@@ -36,3 +36,7 @@ class UserNotFound(BaseException):
 
 class CouldNotSave(BaseException):
     ...
+
+
+class CouldNotInsert(BaseException):
+    ...

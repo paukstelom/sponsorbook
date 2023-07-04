@@ -9,9 +9,11 @@ from models.category_models import Category
 from models.contact_models import Contact
 from models.py_object_id import PyObjectId
 from models.sponsor_models import Sponsor, Rating
-from storage.CategoryCollectionRepository import CategoryRepositoryDep
-from storage.ContactCollectionRepository import ContactRepositoryDep
-from storage.SponsorCollectionRepository import SponsorRepositoryDep
+from dependencies.infrastructure import (
+    ContactRepositoryDep,
+    CategoryRepositoryDep,
+    SponsorRepositoryDep,
+)
 
 router = APIRouter(prefix="/imports")
 
@@ -83,5 +85,4 @@ async def _import(
 
             await sponsors.insert(sponsor)
 
-    for contact in contacts_to_insert:
-        await contacts.insert(contact)
+    await contacts.insert_many(contacts_to_insert)

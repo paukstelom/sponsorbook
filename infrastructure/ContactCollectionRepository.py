@@ -1,16 +1,19 @@
-from typing import List, Annotated, Optional
+from typing import List, Optional
 
-import structlog
-from fastapi import Depends
+from motor.motor_asyncio import AsyncIOMotorCollection, AsyncIOMotorClientSession
 
-from domain import repository as repos
+from domain.repository import ContactRepository
+from infrastructure.CollectionRepository import LoggedCollectionRepository
 from models.contact_models import Contact
 from models.py_object_id import PyObjectId
-from storage import CollectionRepository, ContactsDep, DatabaseSessionDep
 
 
-class ContactCollectionRepository(CollectionRepository[Contact]):
-    def __init__(self, collection: ContactsDep, session: DatabaseSessionDep):
+class ContactCollectionRepository(
+    ContactRepository, LoggedCollectionRepository[Contact]
+):
+    def __init__(
+        self, collection: AsyncIOMotorCollection, session: AsyncIOMotorClientSession
+    ):
         super().__init__(collection, session, Contact)
 
     async def list_by_sponsor_id(
@@ -42,8 +45,3 @@ class ContactCollectionRepository(CollectionRepository[Contact]):
     async def get_by_email(self, email: str) -> Optional[Contact]:
         contact = await self.collection.find_one({"email": email, "is_archived": False})
         return contact if contact is None else self.parser(contact)
-
-
-ContactRepositoryDep = Annotated[
-    repos.ContactRepository, Depends(ContactCollectionRepository)
-]

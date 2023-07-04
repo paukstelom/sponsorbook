@@ -4,8 +4,7 @@ from fastapi import APIRouter, HTTPException
 
 from models.event_models import CreateEventModel, Event
 from models.ticket_models import Ticket
-from storage.TicketCollectionRepository import TicketRepositoryDep
-from storage.EventCollectionRepository import EventRepositoryDep
+from dependencies.infrastructure import EventRepositoryDep, TicketRepositoryDep
 
 router = APIRouter(prefix="/events")
 

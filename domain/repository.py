@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod, ABCMeta
 from typing import Generic, Optional, List, TypeVar, Sequence
 
 from models.base import EntityModel
@@ -15,62 +16,71 @@ from models.user_models import User
 T = TypeVar("T", bound=EntityModel)
 
 
-class Repository(Generic[T]):
+class Repository(ABC, Generic[T]):
+    @abstractmethod
     async def get_by_id(self, _id: PyObjectId | str) -> Optional[T]:
         ...
 
+    @abstractmethod
     async def insert(self, model: T) -> None:
         ...
 
+    @abstractmethod
     async def insert_many(self, model: List[T]) -> None:
         ...
 
+    @abstractmethod
     async def save(self, model: T) -> None:
         ...
 
+    @abstractmethod
     async def list(self, page_size: int) -> List[T]:
         ...
 
 
-class OrgRepository(Repository[Organization]):
+class OrgRepository(Repository[Organization], ABC):
     ...
 
 
-class SubOrgRepository(Repository[SubOrganization]):
+class SubOrgRepository(Repository[SubOrganization], ABC):
     ...
 
 
-class SponsorRepository(Repository[Sponsor]):
+class SponsorRepository(Repository[Sponsor], ABC):
     ...
 
 
-class UserRepository(Repository[User]):
+class UserRepository(Repository[User], ABC):
+    @abstractmethod
     async def get_by_email(self, email: str) -> Optional[User]:
         ...
 
 
-class ContactRepository(Repository[Contact]):
+class ContactRepository(Repository[Contact], ABC):
+    @abstractmethod
     async def list_by_sponsor_id(
         self, sponsor_id: PyObjectId | str, page_size: int = 100
     ) -> List[Contact]:
         ...
 
+    @abstractmethod
     async def get_by_email(self, name: str) -> Optional[Contact]:
         ...
 
 
-class EventRepository(Repository[Event]):
+class EventRepository(Repository[Event], ABC):
     ...
 
 
-class TicketRepository(Repository[Ticket]):
+class TicketRepository(Repository[Ticket], ABC):
     ...
 
 
-class CategoryRepository(Repository[Category]):
+class CategoryRepository(Repository[Category], ABC):
+    @abstractmethod
     async def get_by_name(self, name: str) -> Optional[Category]:
         ...
 
 
-class ConversationRepository(Repository[Conversation]):
+class ConversationRepository(Repository[Conversation], ABC):
     ...

@@ -2,21 +2,19 @@ from typing import List
 
 from fastapi import APIRouter, Body, HTTPException
 
-from dependencies import RequireUser, GetPasswordHasherDep, HashPasswordDep
+from dependencies import RequireUser, HashPasswordDep, UserRepositoryDep
+from dependencies.infrastructure import SponsorsDep, OrgRepositoryDep
 from models.organization_models import Organization, CreateOrganizationModel
 from models.user_models import User
-from storage import DatabaseDep, SponsorsDep
-from storage.UserCollectionRepository import UserRepositoryDep
-from storage.OrgRepositoryCollection import OrgRepositoryDep
 
 router = APIRouter(prefix="/organizations")
 
 
 @router.get("", response_description="Get organization")
 async def get_all_organizations(
-    database: DatabaseDep, page_size: int = 100
+    orgs: OrgRepositoryDep, page_size: int = 100
 ) -> List[Organization]:
-    return await database.orgs.find().to_list(page_size)
+    return await orgs.list(page_size)
 
 
 @router.get(
@@ -71,6 +69,11 @@ async def create_organization(
     hash: HashPasswordDep,
     body: CreateOrganizationModel = Body(),
 ):
+    if await users.get_by_email(body.user_email) is not None:
+        raise HTTPException(
+            status_code=403, detail="User with that email already exists!"
+        )
+
     organization = Organization(name=body.name)
     await orgs.insert(organization)
 

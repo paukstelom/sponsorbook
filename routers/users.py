@@ -2,10 +2,9 @@ from typing import List
 
 from fastapi import APIRouter, HTTPException
 
-from dependencies import GetPasswordHasherDep
+from dependencies import GetPasswordHasherDep, UserRepositoryDep
+from dependencies.infrastructure import OrgRepositoryDep
 from models.user_models import User, CreateUserModel
-from storage.UserCollectionRepository import UserRepositoryDep
-from storage.OrgRepositoryCollection import OrgRepositoryDep
 
 router = APIRouter(prefix="/users")
 
@@ -17,6 +16,11 @@ async def create_user(
     hasher: GetPasswordHasherDep,
     data: CreateUserModel,
 ) -> User:
+    if await users.get_by_email(data.email) is not None:
+        raise HTTPException(
+            status_code=403, detail="User with that email already exists!"
+        )
+
     if (organization := await orgs.get_by_id(data.organization_id)) is None:
         raise HTTPException(status_code=404, detail="Organization not found!")
 

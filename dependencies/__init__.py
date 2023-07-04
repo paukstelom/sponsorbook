@@ -1,3 +1,4 @@
+from abc import ABC
 from datetime import datetime
 from typing import Annotated
 
@@ -7,12 +8,12 @@ from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
 from fastapi import Cookie, HTTPException, Depends
 
-from WithLogger import WithLogger
+from dependencies.infrastructure import UserRepositoryDep
 from domain.auth import EncodeSession, HashPassword, VerifyPassword
+from infrastructure.WithLogger import WithLogger
 from models.errors import UserNotFound
 from models.session import Session
 from models.user_models import User
-from storage.UserCollectionRepository import UserRepositoryDep
 
 logger = structlog.getLogger()
 

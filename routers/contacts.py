@@ -1,10 +1,17 @@
 from fastapi import APIRouter, HTTPException, Body
 
 from models.contact_models import CreateContactModel, Contact, EditContact
-from storage.ContactCollectionRepository import ContactRepositoryDep
-from storage.SponsorCollectionRepository import SponsorRepositoryDep
+from dependencies.infrastructure import ContactRepositoryDep, SponsorRepositoryDep
 
 router = APIRouter(prefix="/contacts")
+
+
+@router.get("/{contact_id}", response_description="Get contact")
+async def add_contact(contacts: ContactRepositoryDep, contact_id: str) -> None:
+    if (contact := await contacts.get_by_id(contact_id)) is None:
+        raise HTTPException(status_code=403, detail="Contact not found!")
+
+    return contact
 
 
 @router.post("", response_description="Create contact")

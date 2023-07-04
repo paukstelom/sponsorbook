@@ -9,8 +9,7 @@ from models.contact_models import (
 )
 from models.py_object_id import PyObjectId
 from models.sponsor_models import Sponsor, CreateSponsorModel, EditSponsorModel
-from storage.ContactCollectionRepository import ContactRepositoryDep
-from storage.SponsorCollectionRepository import SponsorRepositoryDep
+from dependencies.infrastructure import ContactRepositoryDep, SponsorRepositoryDep
 
 router = APIRouter(prefix="/sponsors")
 

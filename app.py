@@ -3,7 +3,9 @@ import logging
 import structlog
 from fastapi import FastAPI
 from fastapi.security import OAuth2PasswordBearer
+from starlette.requests import Request
 
+from dependencies import MaybeUser
 from routers import (
     sponsors,
     tickets,
@@ -38,6 +40,7 @@ structlog.configure(
 
 app = FastAPI()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
+
 
 app.include_router(sponsors.router)
 app.include_router(tickets.router)
