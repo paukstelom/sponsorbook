@@ -71,7 +71,7 @@ async def create_sponsor(
     return str(sponsor.id)
 
 
-@router.put("/{sponsor_id}", response_description="Edit sponsor")
+@router.patch("/{sponsor_id}", response_description="Edit sponsor")
 async def update_sponsor(
     sponsors: SponsorRepositoryDep, sponsor_id: str, changes: EditSponsorModel
 ) -> None:

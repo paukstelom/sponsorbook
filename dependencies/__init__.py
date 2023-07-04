@@ -1,16 +1,10 @@
-from abc import ABC
-from datetime import datetime
 from typing import Annotated
 
-import jwt
 import structlog
-from argon2 import PasswordHasher
-from argon2.exceptions import VerifyMismatchError
 from fastapi import Cookie, HTTPException, Depends
 
 from dependencies.infrastructure import UserRepositoryDep
-from domain.auth import EncodeSession, HashPassword, VerifyPassword
-from infrastructure.WithLogger import WithLogger
+from infrastructure.algorithms import *
 from models.errors import UserNotFound
 from models.session import Session
 from models.user_models import User
@@ -19,7 +13,7 @@ logger = structlog.getLogger()
 
 
 async def get_session_opt(
-    session: Annotated[str | None, Cookie()] = None,
+        session: Annotated[str | None, Cookie()] = None,
 ) -> Session | None:
     if session is None:
         return None
@@ -44,7 +38,7 @@ RequireSession = Annotated[Session, Depends(get_session)]
 
 
 async def get_user_from_session_opt(
-    users: UserRepositoryDep, session: MaybeSession
+        users: UserRepositoryDep, session: MaybeSession
 ) -> User | None:
     return await users.get_by_id(session.user_id)
 
@@ -69,48 +63,17 @@ async def get_password_hasher() -> PasswordHasher:
 GetPasswordHasherDep = Annotated[PasswordHasher, Depends(get_password_hasher)]
 
 
-class Argon2dHashPassword(HashPassword):
-    def __init__(self, hasher: GetPasswordHasherDep):
-        self.hasher = hasher
-
-    def __call__(self, password: str) -> str:
-        return self.hasher.hash(password)
+def get_verify(hasher: GetPasswordHasherDep):
+    return Argon2dVerifyPassword(hasher)
 
 
-class Argon2dVerifyPassword(VerifyPassword, WithLogger):
-    def __init__(self, hasher: GetPasswordHasherDep):
-        self.hasher = hasher
-        super().__init__()
-
-    def __call__(self, password: str, user: User) -> bool:
-        self.log.info("Verifying password", user_id=user.id, hash=user.password)
-
-        try:
-            self.hasher.verify(user.password, password)
-            return True
-        except VerifyMismatchError:
-            return False
+VerifyPasswordDep = Annotated[EncodeSession, Depends(get_verify)]
 
 
-VerifyPasswordDep = Annotated[EncodeSession, Depends(Argon2dVerifyPassword)]
-HashPasswordDep = Annotated[HashPassword, Depends(Argon2dHashPassword)]
+def get_hash(hasher: GetPasswordHasherDep):
+    return Argon2dHashPassword(hasher)
 
 
-class JWTEncodeSession(EncodeSession, WithLogger):
-    def __init__(self):
-        super().__init__()
-
-    def __call__(self, user: User) -> str:
-        key = "secret_key"
-        self.log.info("Encoding session JWT", user_id=user.id)
-
-        session = Session(user_id=str(user.id), logged_in_at=str(datetime.now()))
-
-        return jwt.encode(
-            session.dict(),
-            key,
-            algorithm="HS256",
-        )
-
+HashPasswordDep = Annotated[HashPassword, Depends(get_hash)]
 
 EncodeSessionDep = Annotated[EncodeSession, Depends(JWTEncodeSession)]

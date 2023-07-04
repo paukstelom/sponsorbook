@@ -34,7 +34,7 @@ async def login_endpoint(
 
     token = encode(user)
     response = Response()
-    response.set_cookie(key="session", value=token, max_age=64 * 64)
+    response.set_cookie(key="session", value=token, max_age=64 * 64 * 4)
     return response
 
 

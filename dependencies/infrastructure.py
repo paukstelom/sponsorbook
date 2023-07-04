@@ -2,21 +2,9 @@ from typing import Annotated
 
 from fastapi import Depends
 from motor import motor_asyncio as ma
-from motor.motor_asyncio import AsyncIOMotorCollection
 
-from domain import repository as repos
 from infrastructure import get_db_session
-from infrastructure.CategoryCollectionRepository import CategoryCollectionRepository
-from infrastructure.ContactCollectionRepository import ContactCollectionRepository
-from infrastructure.ConversationCollectionRepository import (
-    ConversationCollectionRepository,
-)
-from infrastructure.EventCollectionRepository import EventCollectionRepository
-from infrastructure.OrgRepositoryCollection import OrgRepositoryCollection
-from infrastructure.SponsorCollectionRepository import SponsorCollectionRepository
-from infrastructure.SubOrgCollectionRepository import SubOrgCollectionRepository
-from infrastructure.TicketCollectionRepository import TicketCollectionRepository
-from infrastructure.UserCollectionRepository import UserCollectionRepository
+from infrastructure.repositories import *
 
 DatabaseSessionDep = Annotated[ma.AsyncIOMotorClientSession, Depends(get_db_session)]
 

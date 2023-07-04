@@ -1,25 +1,25 @@
 from typing import TypeVar, Optional, List
 
-from motor import motor_asyncio as motorasync
+from motor.motor_asyncio import AsyncIOMotorCollection, AsyncIOMotorClientSession
 
-from domain import repository as repos
+from domain.repository import Repository
 from infrastructure.WithLogger import WithLogger
 from models.base import EntityModel
-from models.errors import CouldNotSave, CouldNotInsert
+from models.errors import CouldNotInsert, CouldNotSave
 from models.py_object_id import PyObjectId
 
 T = TypeVar("T", bound=EntityModel)
 
+
 ID_FIELD = "_id"
 IS_ARCHIVED_FIELD = "is_archived"
 
-
-class CollectionRepository(repos.Repository[T]):
+class CollectionRepository(Repository[T]):
     def __init__(
-        self,
-        collection: motorasync.AsyncIOMotorCollection,
-        session: motorasync.AsyncIOMotorClientSession,
-        type: type[T],
+            self,
+            collection: AsyncIOMotorCollection,
+            session: AsyncIOMotorClientSession,
+            type: type[T],
     ):
         super().__init__()
         self.collection = collection
@@ -65,14 +65,12 @@ class CollectionRepository(repos.Repository[T]):
             models_out.append(self.parser(x))
 
         return models_out
-
-
 class LoggedCollectionRepository(CollectionRepository[T], WithLogger):
     def __init__(
-        self,
-        collection: motorasync.AsyncIOMotorCollection,
-        session: motorasync.AsyncIOMotorClientSession,
-        type: type[T],
+            self,
+            collection: AsyncIOMotorCollection,
+            session: AsyncIOMotorClientSession,
+            type: type[T],
     ):
         super().__init__(collection=collection, session=session, type=type)
 
@@ -81,7 +79,7 @@ class LoggedCollectionRepository(CollectionRepository[T], WithLogger):
         return await super().get_by_id(_id)
 
     async def insert(self, model: T) -> None:
-        self.log.info("Inserting element", model=model)
+        self.log.info("Inserting element", model=model.dict())
         await super().insert(model)
 
     async def insert_many(self, models: List[T]) -> None:
@@ -89,10 +87,11 @@ class LoggedCollectionRepository(CollectionRepository[T], WithLogger):
         await super().insert_many(models)
 
     async def save(self, model: T) -> None:
-        self.log.info("Saving element", model=model)
+        self.log.info("Saving element", model=model.dict())
         await super().save(model)
 
     async def list(self, page_size: int) -> List[T]:
         self.log.info("Listing elements", page_size=page_size)
 
         return await super().list(page_size)
+

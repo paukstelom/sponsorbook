@@ -3,9 +3,7 @@ import logging
 import structlog
 from fastapi import FastAPI
 from fastapi.security import OAuth2PasswordBearer
-from starlette.requests import Request
 
-from dependencies import MaybeUser
 from routers import (
     sponsors,
     tickets,
