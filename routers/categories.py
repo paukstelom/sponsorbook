@@ -3,7 +3,7 @@ from typing import List, Optional
 from fastapi import APIRouter, Body, HTTPException
 
 from models.category_models import Category, CreateCategoryModel
-from storage import CategoryRepositoryDep
+from storage.CategoryCollectionRepository import CategoryRepositoryDep
 
 router = APIRouter(prefix="/categories")
 
@@ -15,9 +15,7 @@ async def get_all_categories(
     return await categories.list(page_size)
 
 
-@router.get(
-    "/{category_id}", response_description="Get one category", response_model=Category
-)
+@router.get("/{category_id}", response_description="Get one category")
 async def get_one_category(
     category_id: str, categories: CategoryRepositoryDep
 ) -> Optional[Category]:
@@ -37,7 +35,7 @@ async def delete_category(categories: CategoryRepositoryDep, category_id: str) -
     await categories.save(category)
 
 
-@router.post("", response_description="Create category", response_model="")
+@router.post("", response_description="Create category")
 async def create_category(
     categories: CategoryRepositoryDep, data: CreateCategoryModel = Body()
 ) -> Category:

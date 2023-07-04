@@ -3,7 +3,8 @@ from typing import List
 from fastapi import APIRouter, HTTPException
 
 from models.conversation_models import Conversation, CreateConversationModel
-from storage import ConversationRepositoryDep, TicketRepositoryDep
+from storage.ConversationCollectionRepository import ConversationRepositoryDep
+from storage.TicketCollectionRepository import TicketRepositoryDep
 
 router = APIRouter(prefix="/conversations")
 

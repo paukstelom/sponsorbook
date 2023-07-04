@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field
 
 from models.base import EntityModel, BaseModelConfig, BaseCreationModel
 from models.contact_models import CreateContactNestedModel
+from models.py_object_id import PyObjectId
 
 
 class Rating(BaseModel):
@@ -16,7 +17,7 @@ class Sponsor(EntityModel):
     company_number: str = Field(alias="companyNumber")
     name: str = Field()
     website: str = Field()
-    categories: List[str] = Field()
+    categories: List[PyObjectId] = Field()
     rating: Rating = Field()
     description: str = Field()
     status: str = Field(default="Available")

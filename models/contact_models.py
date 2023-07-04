@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic import Field
 
 from models.base import EntityModel, BaseCreationModel, BaseModelConfig
@@ -24,6 +26,13 @@ class CreateContactForSponsorModel(BaseCreationModel):
     phone: str = Field()
     email: str = Field()
     details: str = Field(default="")
+
+
+class EditContact(BaseCreationModel):
+    name: Optional[str] = Field()
+    phone: Optional[str] = Field()
+    email: Optional[str] = Field()
+    details: Optional[str] = Field()
 
 
 class Contact(EntityModel):

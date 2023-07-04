@@ -1,7 +1,8 @@
 from fastapi import APIRouter, HTTPException, Body
 
-from models.contact_models import CreateContactModel, Contact
-from storage import SponsorRepositoryDep, ContactRepositoryDep
+from models.contact_models import CreateContactModel, Contact, EditContact
+from storage.ContactCollectionRepository import ContactRepositoryDep
+from storage.SponsorCollectionRepository import SponsorRepositoryDep
 
 router = APIRouter(prefix="/contacts")
 
@@ -24,6 +25,30 @@ async def add_contact(
     )
 
     await contacts.insert(contact)
+
+
+@router.patch("/{contact_id}", response_description="Edit contact")
+async def edit_contact(
+    contacts: ContactRepositoryDep,
+    contact_id: str,
+    body: EditContact = Body(),
+) -> None:
+    if (contact := await contacts.get_by_id(contact_id)) is None:
+        raise HTTPException(status_code=403, detail="Contact not found!")
+
+    if body.name is not None:
+        contact.name = body.name
+
+    if body.email is not None:
+        contact.email = body.email
+
+    if body.phone is not None:
+        contact.phone = body.phone
+
+    if body.details is not None:
+        contact.details = body.details
+
+    await contacts.save(contact)
 
 
 @router.delete("/{contact_id}", response_description="Delete contact")

@@ -1,4 +1,4 @@
-from typing import Generic, Optional, List, TypeVar
+from typing import Generic, Optional, List, TypeVar, Sequence
 
 from models.base import EntityModel
 from models.category_models import Category
@@ -20,6 +20,9 @@ class Repository(Generic[T]):
         ...
 
     async def insert(self, model: T) -> None:
+        ...
+
+    async def insert_many(self, model: List[T]) -> None:
         ...
 
     async def save(self, model: T) -> None:
@@ -52,6 +55,9 @@ class ContactRepository(Repository[Contact]):
     ) -> List[Contact]:
         ...
 
+    async def get_by_email(self, name: str) -> Optional[Contact]:
+        ...
+
 
 class EventRepository(Repository[Event]):
     ...
@@ -62,7 +68,8 @@ class TicketRepository(Repository[Ticket]):
 
 
 class CategoryRepository(Repository[Category]):
-    ...
+    async def get_by_name(self, name: str) -> Optional[Category]:
+        ...
 
 
 class ConversationRepository(Repository[Conversation]):

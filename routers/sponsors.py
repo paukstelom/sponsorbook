@@ -1,16 +1,20 @@
-from typing import List, Optional
+from typing import List
 
+import structlog
 from fastapi import APIRouter, HTTPException, Body
 
 from models.contact_models import (
     Contact,
-    CreateContactModel,
     CreateContactForSponsorModel,
 )
+from models.py_object_id import PyObjectId
 from models.sponsor_models import Sponsor, CreateSponsorModel, EditSponsorModel
-from storage import SponsorRepositoryDep, ContactsDep, ContactRepositoryDep
+from storage.ContactCollectionRepository import ContactRepositoryDep
+from storage.SponsorCollectionRepository import SponsorRepositoryDep
 
 router = APIRouter(prefix="/sponsors")
+
+logger = structlog.get_logger()
 
 
 @router.get("", response_description="Get sponsors")
@@ -20,12 +24,8 @@ async def get_sponsors(
     return await sponsors.list(page_size)
 
 
-@router.get(
-    "/{sponsor_id}", response_description="Get one sponsor", response_model=Sponsor
-)
-async def get_sponsor(
-    sponsor_id: str, sponsors: SponsorRepositoryDep
-) -> Optional[Sponsor]:
+@router.get("/{sponsor_id}", response_description="Get one sponsor")
+async def get_sponsor(sponsor_id: str, sponsors: SponsorRepositoryDep) -> Sponsor:
     if (sponsor := await sponsors.get_by_id(sponsor_id)) is None:
         raise HTTPException(status_code=404, detail="Sponsor not found!")
 
@@ -42,7 +42,7 @@ async def delete_sponsor(sponsors: SponsorRepositoryDep, sponsor_id: str) -> Non
     await sponsors.save(sponsor)
 
 
-@router.post("", response_description="Create sponsor", response_model="")
+@router.post("", response_description="Create sponsor")
 async def create_sponsor(
     sponsors: SponsorRepositoryDep,
     contacts: ContactRepositoryDep,
@@ -54,7 +54,7 @@ async def create_sponsor(
         company_number=data.company_number,
         website=data.website,
         description=data.description,
-        categories=data.categories,
+        categories=[PyObjectId(x) for x in data.categories],
     )
 
     await sponsors.insert(sponsor)

@@ -4,7 +4,8 @@ from fastapi import APIRouter, HTTPException
 
 from dependencies import GetPasswordHasherDep
 from models.user_models import User, CreateUserModel
-from storage import UserRepositoryDep, OrgRepositoryDep
+from storage.UserCollectionRepository import UserRepositoryDep
+from storage.OrgRepositoryCollection import OrgRepositoryDep
 
 router = APIRouter(prefix="/users")
 

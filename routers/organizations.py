@@ -2,10 +2,12 @@ from typing import List
 
 from fastapi import APIRouter, Body, HTTPException
 
-from dependencies import GetUserFromSessionDep, GetPasswordHasherDep
+from dependencies import RequireUser, GetPasswordHasherDep, HashPasswordDep
 from models.organization_models import Organization, CreateOrganizationModel
 from models.user_models import User
-from storage import DatabaseDep, OrgRepositoryDep, SponsorsDep, UserRepositoryDep
+from storage import DatabaseDep, SponsorsDep
+from storage.UserCollectionRepository import UserRepositoryDep
+from storage.OrgRepositoryCollection import OrgRepositoryDep
 
 router = APIRouter(prefix="/organizations")
 
@@ -22,7 +24,7 @@ async def get_all_organizations(
     response_description="Get one organization",
 )
 async def get_organization(
-    organization_id: str, orgs: OrgRepositoryDep, user: GetUserFromSessionDep
+    organization_id: str, orgs: OrgRepositoryDep, user: RequireUser
 ) -> Organization:
     if not user.is_admin():
         raise HTTPException(
@@ -41,7 +43,7 @@ async def get_organization(
     response_description="Get one organization",
 )
 async def get_sponsors_for_org(
-    organization_id: str, sponsors: SponsorsDep, user: GetUserFromSessionDep
+    organization_id: str, sponsors: SponsorsDep, user: RequireUser
 ) -> Organization:
     if organization_id != user.organization_id:
         raise HTTPException(
@@ -66,13 +68,13 @@ async def delete_organization(orgs: OrgRepositoryDep, organization_id: str) -> N
 async def create_organization(
     orgs: OrgRepositoryDep,
     users: UserRepositoryDep,
-    hasher: GetPasswordHasherDep,
+    hash: HashPasswordDep,
     body: CreateOrganizationModel = Body(),
 ):
     organization = Organization(name=body.name)
     await orgs.insert(organization)
 
-    hashed_password = hasher.hash("qwerty")
+    hashed_password = hash("qwerty")
     user = User(
         email=body.user_email,
         type="president",

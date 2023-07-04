@@ -4,15 +4,13 @@ from fastapi import APIRouter, HTTPException
 
 from models.event_models import CreateEventModel, Event
 from models.ticket_models import Ticket
-from storage import (
-    EventRepositoryDep,
-    TicketRepositoryDep,
-)
+from storage.TicketCollectionRepository import TicketRepositoryDep
+from storage.EventCollectionRepository import EventRepositoryDep
 
 router = APIRouter(prefix="/events")
 
 
-@router.post("", response_description="Create an event", response_model=Event)
+@router.post("", response_description="Create an event")
 async def create_event(events: EventRepositoryDep, data: CreateEventModel) -> Event:
     event = Event(
         name=data.name,
@@ -24,9 +22,7 @@ async def create_event(events: EventRepositoryDep, data: CreateEventModel) -> Ev
     return event
 
 
-@router.get(
-    "/{event_id}", response_description="Get an event", response_model=Optional[Event]
-)
+@router.get("/{event_id}", response_description="Get an event")
 async def get_event(events: EventRepositoryDep, event_id: str):
     if (event := await events.get_by_id(event_id)) is None:
         raise HTTPException(status_code=404, detail="Event not found")

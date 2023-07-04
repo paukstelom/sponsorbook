@@ -2,12 +2,10 @@ from typing import List
 
 from fastapi import APIRouter, Body, HTTPException
 
-from dependencies import GetUserFromSessionDep
+from dependencies import RequireUser
 from models.sub_organization_models import SubOrganization, CreateSubOrganizationModel
-from storage import (
-    OrgRepositoryDep,
-    SubOrgRepositoryDep,
-)
+from storage.SubOrgCollectionRepository import SubOrgRepositoryDep
+from storage.OrgRepositoryCollection import OrgRepositoryDep
 
 router = APIRouter(prefix="/sub_organizations")
 
@@ -25,7 +23,6 @@ async def get_sub_organizations(
 @router.get(
     "/{sub_organization_id}",
     response_description="Get one sub_organization",
-    response_model=SubOrganization,
 )
 async def get_sub_organization(
     sub_organization_id: str, suborgs: SubOrgRepositoryDep
@@ -47,13 +44,13 @@ async def delete_sub_organization(
     await suborgs.save(suborg)
 
 
-@router.post("", response_description="Create sub_organization", response_model="")
+@router.post("", response_description="Create sub_organization")
 async def create_sub_organization(
     suborgs: SubOrgRepositoryDep,
     orgs: OrgRepositoryDep,
-    user: GetUserFromSessionDep,
+    user: RequireUser,
     data: CreateSubOrganizationModel = Body(),
-) -> SubOrganization | None:
+) -> SubOrganization:
     if (org := await orgs.get_by_id(user.organization_id)) is None:
         raise HTTPException(status_code=404, detail="Organization not found!")
 
