@@ -2,7 +2,6 @@ from io import BytesIO
 from typing import Annotated
 
 import pandas as pd
-import numpy as np
 from fastapi import APIRouter, File, UploadFile, HTTPException
 
 from models.category_models import Category

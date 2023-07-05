@@ -21,7 +21,6 @@ class Sponsor(EntityModel):
     rating: Rating = Field()
     description: str = Field()
     status: str = Field(default="Available")
-    creation_date: datetime = Field(default_factory=datetime.now)
 
     class Config(BaseModelConfig):
         schema_extra = {
