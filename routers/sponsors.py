@@ -2,7 +2,6 @@ from typing import List
 
 import structlog
 from fastapi import APIRouter, HTTPException, Body
-from fastapi_route_log.log_request import LoggingRoute
 
 from models.contact_models import (
     Contact,
